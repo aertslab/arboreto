@@ -1,6 +1,6 @@
-![](img/logo.jpeg)
+![](img/arboretum.jpg)
 
-ARBORETUM: a scalable framework for gene regulatory network inference using tree-based ensemble regressors.
+A scalable framework for gene regulatory network inference using tree-based ensemble regressors.
 
 ## Introduction
 
@@ -9,4 +9,3 @@ ARBORETUM: a scalable framework for gene regulatory network inference using tree
 ## License
 
 ## References
-

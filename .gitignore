@@ -100,3 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 canopy_walk_whitsundays002 copy.jpg
+
+# idea
+.idea/*
