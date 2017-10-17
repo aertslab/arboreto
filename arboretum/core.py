@@ -10,13 +10,15 @@ from dask import delayed
 from dask.dataframe import from_delayed
 from dask.dataframe.utils import make_meta
 
-THE_DEMON_SEED = 666
+DEMON_SEED = 666
 
 SKL_REGRESSOR_FACTORY = {
     'RF': RandomForestRegressor,
     'ET': ExtraTreesRegressor,
     'GBM': GradientBoostingRegressor
 }
+
+DEFAULT_LIMIT = 100000
 
 DEFAULT_KWARGS = {
 
@@ -65,7 +67,7 @@ def train_model(regressor_type,
                 regressor_kwargs,
                 tf_matrix,
                 target_gene_expression,
-                seed=THE_DEMON_SEED):
+                seed=DEMON_SEED):
     """
     :param regressor_type: one of ['RF', 'ET', 'GBM', 'XGB']. Case insensitive.
     :param regressor_kwargs: a dict of key-value pairs that configures the regressor.
@@ -161,7 +163,7 @@ def infer_links(regressor_type,
                 tf_names,
                 target_gene_name,
                 target_gene_expression,
-                seed=THE_DEMON_SEED):
+                seed=DEMON_SEED):
     """
     Top-level function. Ties together model training and feature importance extraction.
 
@@ -214,8 +216,8 @@ def create_graph(expression_matrix,
                  regressor_type,
                  regressor_kwargs,
                  target_genes='all',
-                 limit=100000,
-                 seed=THE_DEMON_SEED):
+                 limit=DEFAULT_LIMIT,
+                 seed=DEMON_SEED):
     """
     Main API function. Create a Dask computation graph.
 
