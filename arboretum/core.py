@@ -262,3 +262,23 @@ def create_graph(expression_matrix,
     result = all_links_df.nlargest(limit, columns=['importance']) if isinstance(limit, int) else all_links_df
 
     return result['TF', 'target', 'importance']
+
+
+class EarlyStopMonitor:
+
+    def __init__(self, window_length=10):
+        """
+        :param window_length: length of the window over the out-of-bag errors.
+        """
+        self.window_length = window_length
+
+    def apply(self, i, regressor, args):
+        """
+        Implementation of the GradientBoostingRegressor monitor function API.
+
+        :param i: the current boosting round.
+        :param regressor: the regressor.
+        :param args:
+        :return: True if the regressor should stop early, else False.
+        """
+        return np.mean(regressor.oob_improvement_[max(0, i-self.window_length+1):i+1]) < 0
