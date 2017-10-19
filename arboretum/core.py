@@ -11,8 +11,9 @@ from dask.dataframe import from_delayed
 from dask.dataframe.utils import make_meta
 
 DEMON_SEED = 666
+ANGEL_SEED = 777
 
-SKL_REGRESSOR_FACTORY = {
+PYTHONIC_REGRESSOR_FACTORY = {
     'RF': RandomForestRegressor,
     'ET': ExtraTreesRegressor,
     'GBM': GradientBoostingRegressor
@@ -20,77 +21,73 @@ SKL_REGRESSOR_FACTORY = {
 
 DEFAULT_LIMIT = 100000
 
-DEFAULT_KWARGS = {
+# scikit-learn random forest regressor
+RF_KWARGS = {
+    'n_jobs': 1,
+    'n_estimators': 1000,
+    'max_features': 'sqrt'
+}
 
-    'RF': {
-        'n_jobs': 1,
-        'n_estimators': 1000,
-        'max_features': 'sqrt'
-    },
+# scikit-learn extra-trees regressor
+ET_KWARGS = {
+    'n_jobs': 1,
+    'n_estimators': 1000,
+    'max_features': 'sqrt'
+}
 
-    'ET': {
-        'n_jobs': 1,
-        'n_estimators': 1000,
-        'max_features': 'sqrt'
-    },
+# scikit-learn gradient boosting regressor
+GBM_KWARGS = {
+    'learning_rate': 0.01,
+    'n_estimators': 500,
+    'max_features': 0.1
+}
 
-    'GBM': {
-        'learning_rate': 0.001,
-        'n_estimators': 500,
-        'max_features': 0.1
-    },
+# scikit-learn stochastic gradient boosting regressor
+SGBM_KWARGS = {
+    'learning_rate': 0.01,
+    'n_estimators': 1000,
+    'max_features': 0.1,
+    'subsample': 0.9
+}
 
-    'XGB': {
+# Microsoft LightGBM regressor
+LGBM_KWARGS = {
+    # TODO
+}
 
-    }
-
+# xgboost regressor
+XGB_KWARGS = {
+    # TODO
 }
 
 
-def __is_skl_regressor(regressor_type):
+def is_pythonic_regressor(regressor_type):
     """
-    :param regressor_type: the regressor type to consider. Case insensitive.
-    :return: boolean indicating whether the regressor type is a scikit-learn regressor.
+    :param regressor_type: string. Case insensitive.
+    :return: whether the regressor type is a 'pythonic' regressor, following the scikit-learn API.
     """
-    return regressor_type.upper() in SKL_REGRESSOR_FACTORY.keys()
+    return regressor_type.upper() in PYTHONIC_REGRESSOR_FACTORY.keys()
 
 
-def __is_xgboost_regressor(regressor_type):
+def is_xgboost_regressor(regressor_type):
     """
-    :param regressor_type: the regressor type to consider. Case insensitive.
+    :param regressor_type: string. Case insensitive.
     :return: boolean indicating whether the regressor type is the xgboost regressor.
     """
     return regressor_type.upper() == 'XGB'
 
 
-def train_model(regressor_type,
-                regressor_kwargs,
-                tf_matrix,
-                target_gene_expression,
-                seed=DEMON_SEED):
+def is_oob_heuristic_supported(regressor_type, regressor_kwargs):
     """
-    :param regressor_type: one of ['RF', 'ET', 'GBM', 'XGB']. Case insensitive.
-    :param regressor_kwargs: a dict of key-value pairs that configures the regressor.
-    :param tf_matrix: the predictor matrix (transcription factor matrix) as a numpy array.
-    :param target_gene_expression: the target (y) gene expression to predict in function of the tf_matrix (X).
-    :param seed: (optional) random seed for the regressors.
-    :return: a trained regression model.
+    :param regressor_type: on
+    :param regressor_kwargs:
+    :return: whether early stopping heuristic based on out-of-bag improvement is supported.
+
     """
-
-    assert tf_matrix.shape[0] == len(target_gene_expression)
-
-    if __is_skl_regressor(regressor_type):
-        regressor = SKL_REGRESSOR_FACTORY[regressor_type](random_state=seed, **regressor_kwargs)
-
-        regressor.fit(tf_matrix, target_gene_expression)
-
-        return regressor
-
-    elif __is_xgboost_regressor(regressor_type):
-        raise ValueError('XGB regressor not yet supported')  # TODO
-
-    else:
-        raise ValueError('Unsupported regressor type: {0}'.format(regressor_type))
+    return \
+        regressor_type.upper() == 'GBM' and \
+        'subsample' in regressor_kwargs and \
+        regressor_kwargs['subsample'] < 1.0
 
 
 def to_tf_matrix(expression_matrix,
@@ -107,33 +104,70 @@ def to_tf_matrix(expression_matrix,
 
     tf_indices = [index for index, gene in enumerate(gene_names) if gene in tf_names]
 
-    return expression_matrix[: tf_indices]
+    return expression_matrix[:, tf_indices]
+
+
+def fit_model(regressor_type,
+              regressor_kwargs,
+              tf_matrix,
+              target_gene_expression,
+              seed=DEMON_SEED):
+    """
+    :param regressor_type: string. Case insensitive.
+    :param regressor_kwargs: a dict of key-value pairs that configures the regressor.
+    :param tf_matrix: the predictor matrix (transcription factor matrix) as a numpy array.
+    :param target_gene_expression: the target (y) gene expression to predict in function of the tf_matrix (X).
+    :param seed: (optional) random seed for the regressors.
+    :return: a trained regression model.
+    """
+
+    assert tf_matrix.shape[0] == len(target_gene_expression)
+
+    def pythonic():
+        regressor = PYTHONIC_REGRESSOR_FACTORY[regressor_type](random_state=seed, **regressor_kwargs)
+
+        if is_oob_heuristic_supported(regressor_type, regressor_kwargs):
+            regressor.fit(tf_matrix, target_gene_expression, monitor=EarlyStopMonitor())
+        else:
+            regressor.fit(tf_matrix, target_gene_expression)
+
+        return regressor
+
+    if is_pythonic_regressor(regressor_type):
+        return pythonic()
+    elif is_xgboost_regressor(regressor_type):
+        raise ValueError('XGB regressor not yet supported')
+    else:
+        raise ValueError('Unsupported regressor type: {0}'.format(regressor_type))
 
 
 def to_links_df(regressor_type,
-                trained_model,
+                model,
                 tf_names,
                 target_gene_name):
     """
-    :param regressor_type: one of ['RF', 'ET', 'GBM', 'XGB']. Case insensitive.
-    :param trained_model: the trained model from which to extract the feature importances.
+    :param regressor_type: string. Case insensitive.
+    :param model: the trained model from which to extract the feature importances.
     :param tf_names: the list of names corresponding to the columns of the tf_matrix used to train the model.
     :param target_gene_name: the name of the target gene.
     :return: a Pandas DataFrame['TF', 'target', 'importance'] representing inferred regulatory links and their
              connection strength.
     """
 
-    if __is_skl_regressor(regressor_type):
-        importances = trained_model.feature_importances_
+    def pythonic():
+        importances = model.feature_importances_
 
         links_df = pd.DataFrame({'TF': tf_names, 'importance': importances})
         links_df['target'] = target_gene_name
 
-        return links_df[links_df.importance > 0].sort_values(by='importance', ascending=False)
+        clean_links_df = links_df[links_df.importance > 0].sort_values(by='importance', ascending=False)
 
-    elif __is_xgboost_regressor(regressor_type):
-        raise ValueError('XGB regressor not yet supported')  # TODO
+        return clean_links_df
 
+    if is_pythonic_regressor(regressor_type):
+        return pythonic()
+    elif is_xgboost_regressor(regressor_type):
+        raise ValueError('XGB regressor not yet supported')
     else:
         raise ValueError('Unsupported regressor type: ' + regressor_type)
 
@@ -149,7 +183,8 @@ def clean(tf_matrix,
              to be one of the transcription factors. If not, the specified (tf_matrix, tf_names) is returned verbatim.
     """
 
-    clean_tf_matrix = tf_matrix if target_gene_name not in tf_names else np.delete(tf_matrix, tf_names.index(target_gene_name), 1)
+    clean_tf_matrix = tf_matrix if target_gene_name not in tf_names else np.delete(tf_matrix,
+                                                                                   tf_names.index(target_gene_name), 1)
     clean_tf_names = [tf for tf in tf_names if tf != target_gene_name]
 
     assert clean_tf_matrix.shape[1] == len(clean_tf_names)  # sanity check
@@ -167,7 +202,7 @@ def infer_links(regressor_type,
     """
     Top-level function. Ties together model training and feature importance extraction.
 
-    :param regressor_type: one of ['RF', 'ET', 'GBM', 'XGB']. Case insensitive.
+    :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param tf_matrix: numpy matrix. The feature matrix X to use for the regression.
     :param tf_names: list of transcription factor names corresponding to the columns of the tf_matrix used to train the model.
@@ -180,34 +215,37 @@ def infer_links(regressor_type,
 
     (clean_tf_matrix, clean_tf_names) = clean(tf_matrix, tf_names, target_gene_name)
 
-    model = train_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression, seed)
+    model = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression, seed)
 
-    return to_links_df(regressor_type, model, clean_tf_names, target_gene_name)
+    links = to_links_df(regressor_type, model, clean_tf_names, target_gene_name)
+
+    # extract oob improvements here in a 'meta' DF.
+
+    return links
 
 
-def __target_gene_indices(gene_names,
-                          target_genes):
+def target_gene_indices(gene_names,
+                        target_genes):
     """
     :param gene_names: list of gene names.
     :param target_genes: either int (the top n), 'all', or a collection (subset of gene_names).
     :return: the (column) indices of the target genes in the expression_matrix.
     """
 
-    if target_genes.upper() == 'ALL':
+    if isinstance(target_genes, str) and target_genes.upper() == 'ALL':
         return list(range(len(gene_names)))
 
     elif isinstance(target_genes, int):
-        top_n = target_genes  # rename for clarity
+        top_n = target_genes
         assert top_n > 0
-        assert top_n <= len(gene_names)
 
-        return list(range(top_n))
+        return list(range(min(top_n, len(gene_names))))
 
     elif isinstance(target_genes, list):
         return [index for index, gene in enumerate(gene_names) if gene in target_genes]
 
     else:
-        raise ValueError("Unable to interpret target_genes: " + target_genes)
+        raise ValueError("Unable to interpret target_genes: '{}'".format(target_genes))
 
 
 def create_graph(expression_matrix,
@@ -224,7 +262,7 @@ def create_graph(expression_matrix,
     :param expression_matrix: numpy matrix. Rows are observations and columns are genes.
     :param gene_names: list of gene names. Each entry corresponds to the expression_matrix column with same index.
     :param tf_names: list of transcription factor names. Should have a non-empty intersection with gene_names.
-    :param regressor_type: one of ['RF', 'ET', 'GBM', 'XGB']. Case insensitive.
+    :param regressor_type: regressor type. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param target_genes: either int, 'all' or a collection that is a subset of gene_names.
     :param limit: int or None. Default 100k. The number of top regulatory links to return.
@@ -239,8 +277,7 @@ def create_graph(expression_matrix,
 
     delayed_link_dfs = []  # collection of delayed link DataFrames
 
-    for target_gene_index in __target_gene_indices(gene_names, target_genes):
-
+    for target_gene_index in target_gene_indices(gene_names, target_genes):
         target_gene_name = gene_names[target_gene_index]
         target_gene_expression = expression_matrix[:, target_gene_index]
 
@@ -259,7 +296,10 @@ def create_graph(expression_matrix,
     all_links_df = from_delayed(delayed_link_dfs, meta=link_df_meta)
 
     # optionally limit the number of resulting regulatory links
-    result = all_links_df.nlargest(limit, columns=['importance']) if isinstance(limit, int) else all_links_df
+    if limit:
+        result = all_links_df.nlargest(limit, columns=['importance'])
+    else:
+        result = all_links_df
 
     return result['TF', 'target', 'importance']
 
@@ -272,7 +312,7 @@ class EarlyStopMonitor:
         """
         self.window_length = window_length
 
-    def apply(self, i, regressor, args):
+    def __call__(self, i, regressor, args):
         """
         Implementation of the GradientBoostingRegressor monitor function API.
 
@@ -281,4 +321,4 @@ class EarlyStopMonitor:
         :param args:
         :return: True if the regressor should stop early, else False.
         """
-        return np.mean(regressor.oob_improvement_[max(0, i-self.window_length+1):i+1]) < 0
+        return np.mean(regressor.oob_improvement_[max(0, i - self.window_length + 1):i + 1]) < 0

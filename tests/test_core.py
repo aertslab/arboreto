@@ -4,31 +4,116 @@ Tests for the arboretum.core package.
 
 import unittest
 from unittest import TestCase
-from arboretum.core import *
 from arboretum.dream5.utils import *
+
+
+net1_ex_path = '../resources/net1/net1_expression_data.tsv'
+net1_tf_path = '../resources/net1/net1_transcription_factors.tsv'
+
+net1_shape = (805, 1643)
+
+net1_matrix = load_expression_matrix(net1_ex_path)
+net1_gene_names = load_gene_names(net1_ex_path)
+net1_tf_names = load_tf_names(net1_tf_path, net1_gene_names)
+net1_tf_matrix = to_tf_matrix(net1_matrix, net1_gene_names, net1_tf_names)
+
+
+class IsOobHeuristicSupportedTests(TestCase):
+
+    def test_RF(self):
+        self.assertFalse(is_oob_heuristic_supported("RF", {}))
+
+    def test_non_stochastic_GBM(self):
+        self.assertFalse(is_oob_heuristic_supported("GBM", {}))
+
+    def test_stochastic_GBM(self):
+        self.assertFalse(is_oob_heuristic_supported("GBM", {'subsample': 1}))
+
+        self.assertTrue(is_oob_heuristic_supported("GBM", {'subsample': 0.9}))
+
+
+class ToTFMatrixTests(TestCase):
+
+    def test_TF_matrix(self):
+        self.assertEquals(net1_tf_matrix.shape, (805, 195))
+
+
+class FitModelTests(TestCase):  # slow
+
+    target_expression = net1_matrix[:, 0]
+
+    def test_smoke_fit_RF_model(self):
+        fit_model("RF", RF_KWARGS, net1_tf_matrix, self.target_expression)
+
+    def test_smoke_fit_ET_model(self):
+        fit_model("ET", ET_KWARGS, net1_tf_matrix, self.target_expression)
+
+    def test_smoke_fit_GBM_model(self):
+        fit_model("GBM", GBM_KWARGS, net1_tf_matrix, self.target_expression)
+
+    def test_smoke_fit_stochastic_GBM_model(self):
+        fit_model("GBM", SGBM_KWARGS, net1_tf_matrix, self.target_expression)
+
+
+class CleanTFMatrixTests(TestCase):
+
+    tf_matrix = to_tf_matrix(net1_matrix, net1_gene_names, net1_tf_names)
+
+    target_is_TF = "G1"
+    target_not_TF = "G666"
+
+    def test_target_is_TF(self):
+        (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, net1_tf_names, self.target_is_TF)
+
+        self.assertEquals(clean_tf_matrix.shape[1], self.tf_matrix.shape[1] - 1)
+        self.assertEquals(len(clean_tf_names), len(net1_tf_names) - 1)
+
+        self.assertTrue(self.target_is_TF in net1_tf_names)
+        self.assertFalse(self.target_is_TF in clean_tf_names)
+
+    def test_target_not_TF(self):
+        (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, net1_tf_names, self.target_not_TF)
+
+        self.assertEquals(clean_tf_matrix.shape, self.tf_matrix.shape)
+        self.assertEquals(clean_tf_names, net1_tf_names)
+
+
+# class InferLinksTests(TestCase):
+
+
+class TargetGeneIndicesTest(TestCase):
+
+    gene_names = ['A', 'B', 'C', 'D', 'E']
+
+    def test_subset(self):
+        self.assertEquals([0, 2, 4], target_gene_indices(self.gene_names, ['A', 'C', 'E']))
+
+    def test_all(self):
+        self.assertEquals([0, 1, 2, 3, 4], target_gene_indices(self.gene_names, 'all'))
+
+    def test_top(self):
+        self.assertEquals([0, 1, 2], target_gene_indices(self.gene_names, 3))
+
+        self.assertEquals([0, 1, 2, 3, 4], target_gene_indices(self.gene_names, 6))
+
+        with self.assertRaises(AssertionError):
+            target_gene_indices(self.gene_names, 0)
+
+    def test_error(self):
+        with self.assertRaises(ValueError):
+            target_gene_indices(self.gene_names, 'some')
 
 
 class Dream5Net1Tests(TestCase):
 
-    net1_ex_path = '../resources/net1/net1_expression_data.tsv'
-    net1_tf_path = '../resources/net1/net1_transcription_factors.tsv'
-
-    net1_shape = (805, 1643)
-
-    net1_matrix = load_expression_matrix(net1_ex_path)
-    net1_gene_names = load_gene_names(net1_ex_path)
-    net1_tf_names = load_tf_names(net1_tf_path, net1_gene_names)
-
     def test_load_net1_matrix(self):
-        self.assertEqual(self.net1_shape, self.net1_matrix.shape)
+        self.assertEquals(net1_shape, net1_matrix.shape)
 
     def test_load_net1_gene_names(self):
-        self.assertEqual(self.net1_shape[1], len(self.net1_gene_names))
+        self.assertEquals(net1_shape[1], len(net1_gene_names))
 
     def test_load_net1_tf_names(self):
-        self.assertEqual(195, len(self.net1_tf_names))
-
-    def test_infer
+        self.assertEquals(195, len(net1_tf_names))
 
 
 if __name__ == '__main__':
