@@ -6,6 +6,9 @@
 * https://henri.io/posts/using-gradient-boosting-with-early-stopping.html
 * paper: _"Early stopping, but when?"_ http://page.mi.fu-berlin.de/prechelt/Biblio/stop_tricks1997.pdf
 
+## IMPORTANT
+* add a minimum nr of rounds parameter to the EarlyStopMonitor to prevent premature stopping in case where the loss is negative in the first rounds (cfr. huber loss function).
+
 ## Note to self
 Ik denk dat ik het laatste irritante probleem in GRNBoost gefixed heb: automatisch bepalen van nr of boosting rounds 
 PER REGRESSIE ipv een globale parameter die geschat kan worden maar toch danig wat variatie kan vertonen over de 
