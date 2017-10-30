@@ -142,12 +142,12 @@ def fit_model(regressor_type,
 
 
 def to_links_df(regressor_type,
-                model,
+                trained_model,
                 tf_names,
                 target_gene_name):
     """
     :param regressor_type: string. Case insensitive.
-    :param model: the trained model from which to extract the feature importances.
+    :param trained_model: the trained model from which to extract the feature importances.
     :param tf_names: the list of names corresponding to the columns of the tf_matrix used to train the model.
     :param target_gene_name: the name of the target gene.
     :return: a Pandas DataFrame['TF', 'target', 'importance'] representing inferred regulatory links and their
@@ -155,14 +155,14 @@ def to_links_df(regressor_type,
     """
 
     def pythonic():
-        importances = model.feature_importances_
+        importances = trained_model.feature_importances_
 
         links_df = pd.DataFrame({'TF': tf_names, 'importance': importances})
         links_df['target'] = target_gene_name
 
         clean_links_df = links_df[links_df.importance > 0].sort_values(by='importance', ascending=False)
 
-        return clean_links_df
+        return clean_links_df[['TF', 'target', 'importance']]
 
     if is_pythonic_regressor(regressor_type):
         return pythonic()
@@ -178,7 +178,7 @@ def clean(tf_matrix,
     """
     :param tf_matrix: numpy array. The full transcription factor matrix.
     :param tf_names: the full list of transcriptor factor names, corresponding to the tf_matrix columns.
-    :param target_gene_name: the target gene to remove from the th_matrix and tf_names.
+    :param target_gene_name: the target gene to remove from the tf_matrix and tf_names.
     :return: a tuple of (matrix, names) equal to the specified ones minus the target_gene_name if the target happens
              to be one of the transcription factors. If not, the specified (tf_matrix, tf_names) is returned verbatim.
     """

@@ -38,21 +38,41 @@ class ToTFMatrixTests(TestCase):
         self.assertEquals(net1_tf_matrix.shape, (805, 195))
 
 
-class FitModelTests(TestCase):  # slow
+class InferLinksTests(TestCase):  # slow
 
-    target_expression = net1_matrix[:, 0]
+    TF = 0
+    NO_TF = 200
+
+    def inner(self, regressor_type, regressor_kwargs, target_idx):
+        target_gene_name = net1_gene_names[target_idx]
+        target_gene_expression = net1_matrix[:, target_idx]
+
+        links_df = infer_links(regressor_type,
+                               regressor_kwargs,
+                               net1_tf_matrix,
+                               net1_tf_names,
+                               target_gene_name,
+                               target_gene_expression)
+
+        self.assertListEqual(list(links_df.columns), ['TF', 'target', 'importance'])
+
+        self.assertFalse(target_gene_name in links_df['TF'].values)
 
     def test_smoke_fit_RF_model(self):
-        fit_model("RF", RF_KWARGS, net1_tf_matrix, self.target_expression)
+        self.inner("RF", RF_KWARGS, self.TF)
+        self.inner("RF", RF_KWARGS, self.NO_TF)
 
     def test_smoke_fit_ET_model(self):
-        fit_model("ET", ET_KWARGS, net1_tf_matrix, self.target_expression)
+        self.inner("ET", ET_KWARGS, self.TF)
+        self.inner("ET", ET_KWARGS, self.NO_TF)
 
     def test_smoke_fit_GBM_model(self):
-        fit_model("GBM", GBM_KWARGS, net1_tf_matrix, self.target_expression)
+        self.inner("GBM", GBM_KWARGS, self.TF)
+        self.inner("GBM", GBM_KWARGS, self.NO_TF)
 
     def test_smoke_fit_stochastic_GBM_model(self):
-        fit_model("GBM", SGBM_KWARGS, net1_tf_matrix, self.target_expression)
+        self.inner("GBM", SGBM_KWARGS, self.TF)
+        self.inner("GBM", SGBM_KWARGS, self.NO_TF)
 
 
 class CleanTFMatrixTests(TestCase):
