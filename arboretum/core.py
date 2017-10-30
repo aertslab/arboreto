@@ -312,13 +312,15 @@ class EarlyStopMonitor:
         """
         self.window_length = window_length
 
-    def __call__(self, i, regressor, args):
+    def __call__(self, current_round, regressor, args):
         """
         Implementation of the GradientBoostingRegressor monitor function API.
 
-        :param i: the current boosting round.
+        :param current_round: the current boosting round.
         :param regressor: the regressor.
-        :param args:
+        :param args: ignored.
         :return: True if the regressor should stop early, else False.
         """
-        return np.mean(regressor.oob_improvement_[max(0, i - self.window_length + 1):i + 1]) < 0
+
+        return current_round >= self.window_length and \
+               np.mean(regressor.oob_improvement_[max(0, current_round - self.window_length + 1):current_round + 1]) < 0
