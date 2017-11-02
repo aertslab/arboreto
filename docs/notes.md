@@ -18,3 +18,6 @@ andere (net3 & net4). De 'penalty' is dat je stochastic gradient boosting moet g
 de samples aan de kant zetten, pakweg 5% a 10% en die gebruiken als out-of-bag test set voor de heuristic). 
 Hoe meer data, hoe minder dit een impact heeft, zegt mijn buikgevoel. Ik zou durven stellen dat we deze boosting method 
 als de default kunnen gebruiken, nog eerder dan xgboost. 
+
+## LightGBM
+* https://github.com/Microsoft/LightGBM
