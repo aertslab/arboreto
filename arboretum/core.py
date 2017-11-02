@@ -19,8 +19,6 @@ PYTHONIC_REGRESSOR_FACTORY = {
     'GBM': GradientBoostingRegressor
 }
 
-DEFAULT_LIMIT = 100000
-
 # scikit-learn random forest regressor
 RF_KWARGS = {
     'n_jobs': 1,
@@ -45,7 +43,7 @@ GBM_KWARGS = {
 # scikit-learn stochastic gradient boosting regressor
 SGBM_KWARGS = {
     'learning_rate': 0.01,
-    'n_estimators': 1000,
+    'n_estimators': 5000,  # can be arbitrarily large
     'max_features': 0.1,
     'subsample': 0.9
 }
@@ -132,24 +130,38 @@ def fit_model(regressor_type,
             regressor.fit(tf_matrix, target_gene_expression, monitor=EarlyStopMonitor())
         else:
             regressor.fit(tf_matrix, target_gene_expression)
-            
+
         return regressor
 
     if is_pythonic_regressor(regressor_type):
         return pythonic()
-    elif is_xgboost_regressor(regressor_type):
-        raise ValueError('XGB regressor not yet supported')
+    # elif is_xgboost_regressor(regressor_type):
+    #     raise ValueError('XGB regressor not yet supported')
     else:
         raise ValueError('Unsupported regressor type: {0}'.format(regressor_type))
 
 
+def to_meta_df(trained_regressor,
+               target_gene_name):
+    """
+    :param trained_regressor: the trained model from which to extract the meta information.
+    :param target_gene_name: the name of the target gene.
+    :return: a Pandas DataFrame['target', 'meta', 'value'] representing side information about the regression.
+    """
+    n_estimators = len(trained_regressor.estimators_)
+
+    return pd.DataFrame({'target': [target_gene_name],
+                         'meta': ['n_estimators'],
+                         'value': [n_estimators]})[['target', 'meta', 'value']]
+
+
 def to_links_df(regressor_type,
-                trained_model,
+                trained_regressor,
                 tf_names,
                 target_gene_name):
     """
     :param regressor_type: string. Case insensitive.
-    :param trained_model: the trained model from which to extract the feature importances.
+    :param trained_regressor: the trained model from which to extract the feature importances.
     :param tf_names: the list of names corresponding to the columns of the tf_matrix used to train the model.
     :param target_gene_name: the name of the target gene.
     :return: a Pandas DataFrame['TF', 'target', 'importance'] representing inferred regulatory links and their
@@ -157,7 +169,7 @@ def to_links_df(regressor_type,
     """
 
     def pythonic():
-        feature_importances = trained_model.feature_importances_
+        feature_importances = trained_regressor.feature_importances_
 
         links_df = pd.DataFrame({'TF': tf_names, 'importance': feature_importances})
         links_df['target'] = target_gene_name
@@ -194,36 +206,50 @@ def clean(tf_matrix,
     return clean_tf_matrix, clean_tf_names
 
 
-def infer_links(regressor_type,
-                regressor_kwargs,
-                tf_matrix,
-                tf_names,
-                target_gene_name,
-                target_gene_expression,
-                seed=DEMON_SEED):
+def regressor_to_data(regressor_type,
+                      regressor_kwargs,
+                      tf_matrix,
+                      tf_names,
+                      target_gene_name,
+                      target_gene_expression,
+                      include_meta=False,
+                      seed=DEMON_SEED):
     """
     Top-level function. Ties together model training and feature importance extraction.
 
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param tf_matrix: numpy matrix. The feature matrix X to use for the regression.
-    :param tf_names: list of transcription factor names corresponding to the columns of the tf_matrix used to train the model.
+    :param tf_names: list of transcription factor names corresponding to the columns of the tf_matrix used to train the
+                     regression model.
     :param target_gene_name: the name of the target gene to infer the regulatory links for.
     :param target_gene_expression: the expression profile of the target gene. Numpy array.
+    :param include_meta: whether to also return the meta information DataFrame.
     :param seed: (optional) random seed for the regressors.
-    :return: a Pandas DataFrame['TF', 'target', 'importance'] representing inferred regulatory links and their
+    :return: if include_meta == True, return links_df, meta_df
+
+             link_df: a Pandas DataFrame['TF', 'target', 'importance'] containing inferred regulatory links and their
              connection strength.
+
+             meta_df: a Pandas DataFrame['target', 'meta', 'value'] containing meta information regarding the trained
+             regression model.
     """
 
     (clean_tf_matrix, clean_tf_names) = clean(tf_matrix, tf_names, target_gene_name)
 
-    model = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression, seed)
+    trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression, seed)
 
-    links = to_links_df(regressor_type, model, clean_tf_names, target_gene_name)
+    links_df = to_links_df(regressor_type, trained_regressor, clean_tf_names, target_gene_name)
 
-    # extract oob improvements here in a 'meta' DF.
+    if include_meta:
+        meta_df = to_meta_df(trained_regressor, target_gene_name)
 
-    return links
+        return links_df, meta_df
+    else:
+        return links_df
+
+
+from operator import itemgetter
 
 
 def target_gene_indices(gene_names,
@@ -233,6 +259,9 @@ def target_gene_indices(gene_names,
     :param target_genes: either int (the top n), 'all', or a collection (subset of gene_names).
     :return: the (column) indices of the target genes in the expression_matrix.
     """
+
+    if isinstance(target_genes, list) and len(target_genes) == 0:
+        return []
 
     if isinstance(target_genes, str) and target_genes.upper() == 'ALL':
         return list(range(len(gene_names)))
@@ -244,10 +273,17 @@ def target_gene_indices(gene_names,
         return list(range(min(top_n, len(gene_names))))
 
     elif isinstance(target_genes, list):
-        return [index for index, gene in enumerate(gene_names) if gene in target_genes]
+        if not target_genes:  # target_genes is empty
+            return target_genes
+        elif all(isinstance(target_gene, str) for target_gene in target_genes):
+            return [index for index, gene in enumerate(gene_names) if gene in target_genes]
+        elif all(isinstance(target_gene, int) for target_gene in target_genes):
+            return target_genes
+        else:
+            raise ValueError("Mixed types in target genes.")
 
     else:
-        raise ValueError("Unable to interpret target_genes: '{}'".format(target_genes))
+        raise ValueError("Unable to interpret target_genes.")
 
 
 def create_graph(expression_matrix,
@@ -256,7 +292,8 @@ def create_graph(expression_matrix,
                  regressor_type,
                  regressor_kwargs,
                  target_genes='all',
-                 limit=DEFAULT_LIMIT,
+                 limit=None,
+                 include_meta=False,
                  seed=DEMON_SEED):
     """
     Main API function. Create a Dask computation graph.
@@ -268,8 +305,10 @@ def create_graph(expression_matrix,
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param target_genes: either int, 'all' or a collection that is a subset of gene_names.
     :param limit: int or None. Default 100k. The number of top regulatory links to return.
+    :param include_meta: Also return the meta DataFrame. Default False.
     :param seed: (optional) random seed for the regressors.
-    :return: a dask computation graph instance.
+    :return: if include_meta is False, returns a Dask graph that computes the links DataFrame.
+             If include_meta is True, returns a tuple: the links DataFrame and the meta DataFrame.
     """
 
     tf_matrix = to_tf_matrix(expression_matrix, gene_names, tf_names)
@@ -278,30 +317,45 @@ def create_graph(expression_matrix,
     delayed_tf_names = delayed(tf_names)
 
     delayed_link_dfs = []  # collection of delayed link DataFrames
+    delayed_meta_dfs = []  # collection of delayed meta DataFrame
 
     for target_gene_index in target_gene_indices(gene_names, target_genes):
         target_gene_name = gene_names[target_gene_index]
         target_gene_expression = expression_matrix[:, target_gene_index]
 
-        delayed_link_df = delayed(infer_links)(
-            regressor_type, regressor_kwargs,
-            delayed_tf_matrix, delayed_tf_names,
-            target_gene_name, target_gene_expression,
-            seed)
+        if include_meta:
+            delayed_link_df, delayed_meta_df = delayed(regressor_to_data, nout=2)(
+                regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
+                target_gene_name, target_gene_expression, include_meta, seed)
 
-        delayed_link_dfs.append(delayed_link_df)
+            delayed_link_dfs.append(delayed_link_df)
+            delayed_meta_dfs.append(delayed_meta_df)
+        else:
+            delayed_link_df = delayed(regressor_to_data)(
+                regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
+                target_gene_name, target_gene_expression, include_meta, seed)
 
-    # provide the schema of the delayed DataFrames
-    link_df_meta = make_meta({'TF': str, 'target': str, 'importance': float})
+            delayed_link_dfs.append(delayed_link_df)
 
     # gather the regulatory link DataFrames into one distributed DataFrame
-    all_links_df = from_delayed(delayed_link_dfs, meta=link_df_meta)
+    all_links_df = from_delayed(delayed_link_dfs,
+                                meta=make_meta({'TF': str, 'target': str, 'importance': float}))
 
-    # optionally limit the number of resulting regulatory links
+    # gather the meta information DataFrame into one distributed DataFrame
+    all_meta_df = from_delayed(delayed_meta_dfs,
+                               meta=make_meta({'target': str, 'meta': str, 'value': int}))
+
+    # optionally limit the number of resulting regulatory links, descending by top importance
     if limit:
-        return all_links_df.nlargest(limit, columns=['importance'])
+        maybe_limited_links_df = all_links_df.nlargest(limit, columns=['importance'])
     else:
-        return all_links_df
+        maybe_limited_links_df = all_links_df
+
+    # optionally return the meta DataFrame as well
+    if include_meta:
+        return maybe_limited_links_df, all_meta_df
+    else:
+        return maybe_limited_links_df
 
 
 class EarlyStopMonitor:
@@ -310,7 +364,19 @@ class EarlyStopMonitor:
         """
         :param window_length: length of the window over the out-of-bag errors.
         """
+
         self.window_length = window_length
+
+    def window_boundaries(self, current_round):
+        """
+        :param current_round:
+        :return: the low and high boundaries of the estimators window to consider.
+        """
+
+        lo = max(0, current_round - self.window_length + 1)
+        hi = current_round + 1
+
+        return lo, hi
 
     def __call__(self, current_round, regressor, _):
         """
@@ -322,6 +388,8 @@ class EarlyStopMonitor:
         :return: True if the regressor should stop early, else False.
         """
 
-        return \
-            current_round >= self.window_length and \
-            np.mean(regressor.oob_improvement_[max(0, current_round - self.window_length + 1):current_round + 1]) < 0
+        if current_round >= self.window_length - 1:
+            lo, hi = self.window_boundaries(current_round)
+            return np.mean(regressor.oob_improvement_[lo: hi]) < 0
+        else:
+            return False
