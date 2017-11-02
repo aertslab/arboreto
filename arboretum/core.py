@@ -126,11 +126,13 @@ def fit_model(regressor_type,
     def pythonic():
         regressor = PYTHONIC_REGRESSOR_FACTORY[regressor_type](random_state=seed, **regressor_kwargs)
 
-        if is_oob_heuristic_supported(regressor_type, regressor_kwargs):
+        with_early_stopping = is_oob_heuristic_supported(regressor_type, regressor_kwargs)
+
+        if with_early_stopping:
             regressor.fit(tf_matrix, target_gene_expression, monitor=EarlyStopMonitor())
         else:
             regressor.fit(tf_matrix, target_gene_expression)
-
+            
         return regressor
 
     if is_pythonic_regressor(regressor_type):
@@ -155,9 +157,9 @@ def to_links_df(regressor_type,
     """
 
     def pythonic():
-        importances = trained_model.feature_importances_
+        feature_importances = trained_model.feature_importances_
 
-        links_df = pd.DataFrame({'TF': tf_names, 'importance': importances})
+        links_df = pd.DataFrame({'TF': tf_names, 'importance': feature_importances})
         links_df['target'] = target_gene_name
 
         clean_links_df = links_df[links_df.importance > 0].sort_values(by='importance', ascending=False)
@@ -297,11 +299,9 @@ def create_graph(expression_matrix,
 
     # optionally limit the number of resulting regulatory links
     if limit:
-        result = all_links_df.nlargest(limit, columns=['importance'])
+        return all_links_df.nlargest(limit, columns=['importance'])
     else:
-        result = all_links_df
-
-    return result['TF', 'target', 'importance']
+        return all_links_df
 
 
 class EarlyStopMonitor:
