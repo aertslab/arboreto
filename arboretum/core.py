@@ -249,9 +249,6 @@ def regressor_to_data(regressor_type,
         return links_df
 
 
-from operator import itemgetter
-
-
 def target_gene_indices(gene_names,
                         target_genes):
     """

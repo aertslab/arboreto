@@ -44,7 +44,7 @@ class RegressorToDataTests(TestCase):  # slow
     TF = 0
     NO_TF = 200
 
-    def inner(self, regressor_type, regressor_kwargs, target_idx):
+    def inner(self, regressor_type, regressor_kwargs, target_idx, seed=DEMON_SEED):
         target_gene_name = net1_gene_names[target_idx]
         target_gene_expression = net1_ex_matrix[:, target_idx]
 
@@ -54,7 +54,8 @@ class RegressorToDataTests(TestCase):  # slow
                                               net1_tf_names,
                                               target_gene_name,
                                               target_gene_expression,
-                                              include_meta=True)
+                                              include_meta=True,
+                                              seed=seed)
 
         self.assertEqual(meta_df['target'][0], target_gene_name)
 
@@ -77,6 +78,9 @@ class RegressorToDataTests(TestCase):  # slow
     def test_smoke_fit_stochastic_GBM_model(self):
         self.inner("GBM", SGBM_KWARGS, self.TF)
         self.inner("GBM", SGBM_KWARGS, self.NO_TF)
+
+    def test_smoke_fit_stochastic_GBM_model_seed_None(self):
+        self.inner("GBM", SGBM_KWARGS, self.TF, seed=None)
 
 
 class ComputeGraphTests(TestCase):  # slow
