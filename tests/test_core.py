@@ -8,8 +8,8 @@ from arboretum.dream5.utils import *
 
 import dask
 
-net1_ex_path = '../resources/net1/net1_expression_data.tsv'
-net1_tf_path = '../resources/net1/net1_transcription_factors.tsv'
+net1_ex_path = '../resources/dream5/net1/net1_expression_data.tsv'
+net1_tf_path = '../resources/dream5/net1/net1_transcription_factors.tsv'
 
 net1_shape = (805, 1643)
 
