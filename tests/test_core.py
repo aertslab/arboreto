@@ -106,13 +106,13 @@ class ComputeGraphTests(TestCase):  # slow
                                                  "GBM",
                                                  SGBM_KWARGS,
                                                  target_genes=list(self.test_range),
-                                                 include_meta=True)
+                                                 include_meta=True,
+                                                 early_stop_window_length=30)
 
-        # persist, otherwise the entire graph is recomputed for the two 'downstream' DataFrames
-        dask.persist(network_graph, meta_graph)
+        result = dask.compute(network_graph, meta_graph)
 
-        network_df = network_graph.compute()
-        meta_df = meta_graph.compute()
+        network_df = result[0]
+        meta_df = result[1]
 
         self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
         self.assertEquals(len(self.test_range), len(meta_df['target'].unique()))
