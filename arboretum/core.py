@@ -12,7 +12,7 @@ from dask.dataframe.utils import make_meta
 
 DEMON_SEED = 666
 ANGEL_SEED = 777
-EARLY_STOP_WINDOW_LENGTH = 10
+EARLY_STOP_WINDOW_LENGTH = 25
 
 PYTHONIC_REGRESSOR_FACTORY = {
     'RF': RandomForestRegressor,
