@@ -220,7 +220,7 @@ def clean(tf_matrix,
           target_gene_name):
     """
     :param tf_matrix: numpy array. The full transcription factor matrix.
-    :param tf_names: the full list of transcriptor factor names, corresponding to the tf_matrix columns.
+    :param tf_names: the full list of transcription factor names, corresponding to the tf_matrix columns.
     :param target_gene_name: the target gene to remove from the tf_matrix and tf_names.
     :return: a tuple of (matrix, names) equal to the specified ones minus the target_gene_name if the target happens
              to be one of the transcription factors. If not, the specified (tf_matrix, tf_names) is returned verbatim.
