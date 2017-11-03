@@ -144,26 +144,51 @@ def fit_model(regressor_type,
         raise ValueError('Unsupported regressor type: {0}'.format(regressor_type))
 
 
+def to_feature_importances(regressor_type,
+                           regressor_kwargs,
+                           trained_regressor):
+    """
+    Motivation: when the out-of-bag improvement heuristic is used, we cancel the effect of normalization by dividing
+    by the number of trees in the regression ensemble by multiplying again by the number of trees used.
+
+    This enables prioritizing links that were inferred in a regression where lots of
+
+    :param regressor_type: string. Case insensitive.
+    :param regressor_kwargs: dict of key-value pairs that configures the regressor.
+    :param trained_regressor: the trained model from which to extract the feature importances.
+    :return: the feature importances inferred from the trained model.
+    """
+
+    if is_oob_heuristic_supported(regressor_type, regressor_kwargs):
+        n_estimators = len(trained_regressor.estimators_)
+
+        denormalized_importances = trained_regressor.feature_importances_ * n_estimators
+
+        return denormalized_importances
+    else:
+        return trained_regressor.feature_importances_
+
+
 def to_meta_df(trained_regressor,
                target_gene_name):
     """
     :param trained_regressor: the trained model from which to extract the meta information.
     :param target_gene_name: the name of the target gene.
-    :return: a Pandas DataFrame['target', 'meta', 'value'] representing side information about the regression.
+    :return: a Pandas DataFrame containing side information about the regression.
     """
     n_estimators = len(trained_regressor.estimators_)
 
-    return pd.DataFrame({'target': [target_gene_name],
-                         'meta': ['n_estimators'],
-                         'value': [n_estimators]})[['target', 'meta', 'value']]
+    return pd.DataFrame({'target': [target_gene_name], 'n_estimators': [n_estimators]})
 
 
 def to_links_df(regressor_type,
+                regressor_kwargs,
                 trained_regressor,
                 tf_names,
                 target_gene_name):
     """
     :param regressor_type: string. Case insensitive.
+    :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param trained_regressor: the trained model from which to extract the feature importances.
     :param tf_names: the list of names corresponding to the columns of the tf_matrix used to train the model.
     :param target_gene_name: the name of the target gene.
@@ -172,7 +197,8 @@ def to_links_df(regressor_type,
     """
 
     def pythonic():
-        feature_importances = trained_regressor.feature_importances_
+        # feature_importances = trained_regressor.feature_importances_
+        feature_importances = to_feature_importances(regressor_type, regressor_kwargs, trained_regressor)
 
         links_df = pd.DataFrame({'TF': tf_names, 'importance': feature_importances})
         links_df['target'] = target_gene_name
@@ -219,7 +245,7 @@ def infer_data(regressor_type,
                early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
                seed=DEMON_SEED):
     """
-    Ties together model training and feature importance extraction.
+    Ties together regressor model training with regulatory links and meta data extraction.
 
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
@@ -245,7 +271,7 @@ def infer_data(regressor_type,
     trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
                                   early_stop_window_length, seed)
 
-    links_df = to_links_df(regressor_type, trained_regressor, clean_tf_names, target_gene_name)
+    links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_names, target_gene_name)
 
     if include_meta:
         meta_df = to_meta_df(trained_regressor, target_gene_name)
@@ -348,7 +374,7 @@ def create_graph(expression_matrix,
 
     # gather the meta information DataFrame into one distributed DataFrame
     all_meta_df = from_delayed(delayed_meta_dfs,
-                               meta=make_meta({'target': str, 'meta': str, 'value': int}))
+                               meta=make_meta({'target': str, 'n_estimators': int}))
 
     # optionally limit the number of resulting regulatory links, descending by top importance
     if limit:

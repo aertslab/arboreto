@@ -107,7 +107,7 @@ class ComputeGraphTests(TestCase):  # slow
                                                  SGBM_KWARGS,
                                                  target_genes=list(self.test_range),
                                                  include_meta=True,
-                                                 early_stop_window_length=30)
+                                                 early_stop_window_length=10)
 
         result = dask.compute(network_graph, meta_graph)
 
