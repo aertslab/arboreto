@@ -209,17 +209,17 @@ def clean(tf_matrix,
     return clean_tf_matrix, clean_tf_names
 
 
-def regressor_to_data(regressor_type,
-                      regressor_kwargs,
-                      tf_matrix,
-                      tf_names,
-                      target_gene_name,
-                      target_gene_expression,
-                      include_meta=False,
-                      early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
-                      seed=DEMON_SEED):
+def infer_data(regressor_type,
+               regressor_kwargs,
+               tf_matrix,
+               tf_names,
+               target_gene_name,
+               target_gene_expression,
+               include_meta=False,
+               early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
+               seed=DEMON_SEED):
     """
-    Top-level function. Ties together model training and feature importance extraction.
+    Ties together model training and feature importance extraction.
 
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
@@ -329,14 +329,14 @@ def create_graph(expression_matrix,
         target_gene_expression = expression_matrix[:, target_gene_index]
 
         if include_meta:
-            delayed_link_df, delayed_meta_df = delayed(regressor_to_data, nout=2)(
+            delayed_link_df, delayed_meta_df = delayed(infer_data, nout=2)(
                 regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)
             delayed_meta_dfs.append(delayed_meta_df)
         else:
-            delayed_link_df = delayed(regressor_to_data)(
+            delayed_link_df = delayed(infer_data)(
                 regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 

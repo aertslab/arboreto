@@ -39,7 +39,7 @@ class ToTFMatrixTests(TestCase):
         self.assertEquals(net1_tf_matrix.shape, (805, 195))
 
 
-class RegressorToDataTests(TestCase):  # slow
+class InferDataTests(TestCase):  # slow
 
     TF = 0
     NO_TF = 200
@@ -48,14 +48,14 @@ class RegressorToDataTests(TestCase):  # slow
         target_gene_name = net1_gene_names[target_idx]
         target_gene_expression = net1_ex_matrix[:, target_idx]
 
-        links_df, meta_df = regressor_to_data(regressor_type,
-                                              regressor_kwargs,
-                                              net1_tf_matrix,
-                                              net1_tf_names,
-                                              target_gene_name,
-                                              target_gene_expression,
-                                              include_meta=True,
-                                              seed=seed)
+        links_df, meta_df = infer_data(regressor_type,
+                                       regressor_kwargs,
+                                       net1_tf_matrix,
+                                       net1_tf_names,
+                                       target_gene_name,
+                                       target_gene_expression,
+                                       include_meta=True,
+                                       seed=seed)
 
         self.assertEqual(meta_df['target'][0], target_gene_name)
 
