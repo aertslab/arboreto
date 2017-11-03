@@ -12,6 +12,7 @@ from dask.dataframe.utils import make_meta
 
 DEMON_SEED = 666
 ANGEL_SEED = 777
+EARLY_STOP_WINDOW_LENGTH = 10
 
 PYTHONIC_REGRESSOR_FACTORY = {
     'RF': RandomForestRegressor,
@@ -109,12 +110,14 @@ def fit_model(regressor_type,
               regressor_kwargs,
               tf_matrix,
               target_gene_expression,
+              early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
               seed=DEMON_SEED):
     """
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: a dict of key-value pairs that configures the regressor.
     :param tf_matrix: the predictor matrix (transcription factor matrix) as a numpy array.
     :param target_gene_expression: the target (y) gene expression to predict in function of the tf_matrix (X).
+    :param early_stop_window_length: window length of the early stopping monitor.
     :param seed: (optional) random seed for the regressors.
     :return: a trained regression model.
     """
@@ -127,7 +130,7 @@ def fit_model(regressor_type,
         with_early_stopping = is_oob_heuristic_supported(regressor_type, regressor_kwargs)
 
         if with_early_stopping:
-            regressor.fit(tf_matrix, target_gene_expression, monitor=EarlyStopMonitor())
+            regressor.fit(tf_matrix, target_gene_expression, monitor=EarlyStopMonitor(early_stop_window_length))
         else:
             regressor.fit(tf_matrix, target_gene_expression)
 
@@ -213,6 +216,7 @@ def regressor_to_data(regressor_type,
                       target_gene_name,
                       target_gene_expression,
                       include_meta=False,
+                      early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
                       seed=DEMON_SEED):
     """
     Top-level function. Ties together model training and feature importance extraction.
@@ -225,6 +229,7 @@ def regressor_to_data(regressor_type,
     :param target_gene_name: the name of the target gene to infer the regulatory links for.
     :param target_gene_expression: the expression profile of the target gene. Numpy array.
     :param include_meta: whether to also return the meta information DataFrame.
+    :param early_stop_window_length: window length of the early stopping monitor.
     :param seed: (optional) random seed for the regressors.
     :return: if include_meta == True, return links_df, meta_df
 
@@ -237,7 +242,8 @@ def regressor_to_data(regressor_type,
 
     (clean_tf_matrix, clean_tf_names) = clean(tf_matrix, tf_names, target_gene_name)
 
-    trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression, seed)
+    trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
+                                  early_stop_window_length, seed)
 
     links_df = to_links_df(regressor_type, trained_regressor, clean_tf_names, target_gene_name)
 
@@ -291,7 +297,8 @@ def create_graph(expression_matrix,
                  target_genes='all',
                  limit=None,
                  include_meta=False,
-                 seed=DEMON_SEED):
+                 early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
+                 seed=DEMON_SEED,):
     """
     Main API function. Create a Dask computation graph.
 
@@ -303,6 +310,7 @@ def create_graph(expression_matrix,
     :param target_genes: either int, 'all' or a collection that is a subset of gene_names.
     :param limit: int or None. Default 100k. The number of top regulatory links to return.
     :param include_meta: Also return the meta DataFrame. Default False.
+    :param early_stop_window_length: window length of the early stopping monitor.
     :param seed: (optional) random seed for the regressors.
     :return: if include_meta is False, returns a Dask graph that computes the links DataFrame.
              If include_meta is True, returns a tuple: the links DataFrame and the meta DataFrame.
@@ -323,14 +331,14 @@ def create_graph(expression_matrix,
         if include_meta:
             delayed_link_df, delayed_meta_df = delayed(regressor_to_data, nout=2)(
                 regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
-                target_gene_name, target_gene_expression, include_meta, seed)
+                target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)
             delayed_meta_dfs.append(delayed_meta_df)
         else:
             delayed_link_df = delayed(regressor_to_data)(
                 regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
-                target_gene_name, target_gene_expression, include_meta, seed)
+                target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)
 
@@ -357,7 +365,7 @@ def create_graph(expression_matrix,
 
 class EarlyStopMonitor:
 
-    def __init__(self, window_length=10):
+    def __init__(self, window_length=EARLY_STOP_WINDOW_LENGTH):
         """
         :param window_length: length of the window over the out-of-bag errors.
         """
