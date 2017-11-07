@@ -96,14 +96,19 @@ def to_tf_matrix(expression_matrix,
     :param expression_matrix: numpy matrix. Rows are observations and columns are genes.
     :param gene_names: a list of gene names. Each entry corresponds to the expression_matrix column with same index.
     :param tf_names: a list of transcription factor names. Should be a subset of gene_names.
-    :return: a numpy matrix representing the predictor matrix for the regressions.
+    :return: tuple of:
+             0: A numpy matrix representing the predictor matrix for the regressions.
+             1: The gene names corresponding to the columns in the predictor matrix.
     """
 
     assert expression_matrix.shape[1] == len(gene_names)
 
-    tf_indices = [index for index, gene in enumerate(gene_names) if gene in tf_names]
+    tuples = [(index, gene) for index, gene in enumerate(gene_names) if gene in tf_names]
 
-    return expression_matrix[:, tf_indices]
+    tf_indices = [t[0] for t in tuples]
+    tf_matrix_names = [t[1] for t in tuples]
+
+    return expression_matrix[:, tf_indices], tf_matrix_names
 
 
 def fit_model(regressor_type,
@@ -184,13 +189,13 @@ def to_meta_df(trained_regressor,
 def to_links_df(regressor_type,
                 regressor_kwargs,
                 trained_regressor,
-                tf_names,
+                tf_matrix_gene_names,
                 target_gene_name):
     """
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param trained_regressor: the trained model from which to extract the feature importances.
-    :param tf_names: the list of names corresponding to the columns of the tf_matrix used to train the model.
+    :param tf_matrix_gene_names: the list of names corresponding to the columns of the tf_matrix used to train the model.
     :param target_gene_name: the name of the target gene.
     :return: a Pandas DataFrame['TF', 'target', 'importance'] representing inferred regulatory links and their
              connection strength.
@@ -200,7 +205,7 @@ def to_links_df(regressor_type,
         # feature_importances = trained_regressor.feature_importances_
         feature_importances = to_feature_importances(regressor_type, regressor_kwargs, trained_regressor)
 
-        links_df = pd.DataFrame({'TF': tf_names, 'importance': feature_importances})
+        links_df = pd.DataFrame({'TF': tf_matrix_gene_names, 'importance': feature_importances})
         links_df['target'] = target_gene_name
 
         clean_links_df = links_df[links_df.importance > 0].sort_values(by='importance', ascending=False)
@@ -216,19 +221,22 @@ def to_links_df(regressor_type,
 
 
 def clean(tf_matrix,
-          tf_names,
+          tf_matrix_gene_names,
           target_gene_name):
     """
     :param tf_matrix: numpy array. The full transcription factor matrix.
-    :param tf_names: the full list of transcription factor names, corresponding to the tf_matrix columns.
+    :param tf_matrix_gene_names: the full list of transcription factor names, corresponding to the tf_matrix columns.
     :param target_gene_name: the target gene to remove from the tf_matrix and tf_names.
     :return: a tuple of (matrix, names) equal to the specified ones minus the target_gene_name if the target happens
              to be one of the transcription factors. If not, the specified (tf_matrix, tf_names) is returned verbatim.
     """
 
-    clean_tf_matrix = tf_matrix if target_gene_name not in tf_names else np.delete(tf_matrix,
-                                                                                   tf_names.index(target_gene_name), 1)
-    clean_tf_names = [tf for tf in tf_names if tf != target_gene_name]
+    if target_gene_name not in tf_matrix_gene_names:
+        clean_tf_matrix = tf_matrix
+    else:
+        clean_tf_matrix = np.delete(tf_matrix, tf_matrix_gene_names.index(target_gene_name), 1)
+
+    clean_tf_names = [tf for tf in tf_matrix_gene_names if tf != target_gene_name]
 
     assert clean_tf_matrix.shape[1] == len(clean_tf_names)  # sanity check
 
@@ -238,7 +246,7 @@ def clean(tf_matrix,
 def infer_data(regressor_type,
                regressor_kwargs,
                tf_matrix,
-               tf_names,
+               tf_matrix_gene_names,
                target_gene_name,
                target_gene_expression,
                include_meta=False,
@@ -250,8 +258,8 @@ def infer_data(regressor_type,
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
     :param tf_matrix: numpy matrix. The feature matrix X to use for the regression.
-    :param tf_names: list of transcription factor names corresponding to the columns of the tf_matrix used to train the
-                     regression model.
+    :param tf_matrix_gene_names: list of transcription factor names corresponding to the columns of the tf_matrix used to
+                                 train the regression model.
     :param target_gene_name: the name of the target gene to infer the regulatory links for.
     :param target_gene_expression: the expression profile of the target gene. Numpy array.
     :param include_meta: whether to also return the meta information DataFrame.
@@ -265,13 +273,12 @@ def infer_data(regressor_type,
              meta_df: a Pandas DataFrame['target', 'meta', 'value'] containing meta information regarding the trained
              regression model.
     """
-
-    (clean_tf_matrix, clean_tf_names) = clean(tf_matrix, tf_names, target_gene_name)
+    (clean_tf_matrix, clean_tf_matrix_gene_names) = clean(tf_matrix, tf_matrix_gene_names, target_gene_name)
 
     trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
                                   early_stop_window_length, seed)
 
-    links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_names, target_gene_name)
+    links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_matrix_gene_names, target_gene_name)
 
     if include_meta:
         meta_df = to_meta_df(trained_regressor, target_gene_name)
@@ -342,10 +349,10 @@ def create_graph(expression_matrix,
              If include_meta is True, returns a tuple: the links DataFrame and the meta DataFrame.
     """
 
-    tf_matrix = to_tf_matrix(expression_matrix, gene_names, tf_names)
+    tf_matrix, tf_matrix_gene_names = to_tf_matrix(expression_matrix, gene_names, tf_names)
 
     delayed_tf_matrix = delayed(tf_matrix, pure=True)
-    delayed_tf_names = delayed(tf_names, pure=True)
+    delayed_tf_matrix_gene_names = delayed(tf_matrix_gene_names, pure=True)
 
     delayed_link_dfs = []  # collection of delayed link DataFrames
     delayed_meta_dfs = []  # collection of delayed meta DataFrame
@@ -356,14 +363,16 @@ def create_graph(expression_matrix,
 
         if include_meta:
             delayed_link_df, delayed_meta_df = delayed(infer_data, pure=True, nout=2)(
-                regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
+                regressor_type, regressor_kwargs,
+                delayed_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)
             delayed_meta_dfs.append(delayed_meta_df)
         else:
             delayed_link_df = delayed(infer_data, pure=True)(
-                regressor_type, regressor_kwargs, delayed_tf_matrix, delayed_tf_names,
+                regressor_type, regressor_kwargs,
+                delayed_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)

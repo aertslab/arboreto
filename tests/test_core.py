@@ -5,6 +5,7 @@ Tests for the arboretum.core package.
 import unittest
 from unittest import TestCase
 from arboretum.dream5.utils import *
+from random import shuffle
 
 import dask
 
@@ -15,8 +16,15 @@ net1_shape = (805, 1643)
 
 net1_ex_matrix = load_expression_matrix(net1_ex_path)
 net1_gene_names = load_gene_names(net1_ex_path)
-net1_tf_names = load_tf_names(net1_tf_path, net1_gene_names)
-net1_tf_matrix = to_tf_matrix(net1_ex_matrix, net1_gene_names, net1_tf_names)
+net1_tf_names_pure = load_tf_names(net1_tf_path)
+
+# All tests should work with shuffled, dirty TF list.
+net1_tf_names = sum([net1_tf_names_pure, ['foo', 'gee', 'bar']], [])
+shuffle(net1_tf_names)
+
+net1_tf_matrix, net1_tf_matrix_gene_names = to_tf_matrix(net1_ex_matrix,
+                                                         net1_gene_names,
+                                                         net1_tf_names)
 
 
 class IsOobHeuristicSupportedTests(TestCase):
@@ -51,7 +59,7 @@ class InferDataTests(TestCase):  # slow
         links_df, meta_df = infer_data(regressor_type,
                                        regressor_kwargs,
                                        net1_tf_matrix,
-                                       net1_tf_names,
+                                       net1_tf_matrix_gene_names,
                                        target_gene_name,
                                        target_gene_expression,
                                        include_meta=True,
@@ -121,7 +129,7 @@ class ComputeGraphTests(TestCase):  # slow
 class EarlyStopMonitorTests(TestCase):
 
     def test_window_boundaries(self):
-        m = EarlyStopMonitor()
+        m = EarlyStopMonitor(window_length=10)
 
         self.assertEqual(m.window_boundaries(0), (0, 1))
         self.assertEqual(m.window_boundaries(1), (0, 2))
@@ -138,25 +146,27 @@ class EarlyStopMonitorTests(TestCase):
 
 class CleanTFMatrixTests(TestCase):
 
-    tf_matrix = to_tf_matrix(net1_ex_matrix, net1_gene_names, net1_tf_names)
+    # tests should run with net1_tf_names in randomized order.
+
+    tf_matrix, tf_matrix_gene_names = to_tf_matrix(net1_ex_matrix, net1_gene_names, net1_tf_names)
 
     target_is_TF = "G1"
     target_not_TF = "G666"
 
     def test_target_is_TF(self):
-        (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, net1_tf_names, self.target_is_TF)
+        (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, self.tf_matrix_gene_names, self.target_is_TF)
 
         self.assertEquals(clean_tf_matrix.shape[1], self.tf_matrix.shape[1] - 1)
-        self.assertEquals(len(clean_tf_names), len(net1_tf_names) - 1)
+        self.assertEquals(len(clean_tf_names), len(self.tf_matrix_gene_names) - 1)
 
-        self.assertTrue(self.target_is_TF in net1_tf_names)
+        self.assertTrue(self.target_is_TF in self.tf_matrix_gene_names)
         self.assertFalse(self.target_is_TF in clean_tf_names)
 
     def test_target_not_TF(self):
-        (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, net1_tf_names, self.target_not_TF)
+        (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, self.tf_matrix_gene_names, self.target_not_TF)
 
         self.assertEquals(clean_tf_matrix.shape, self.tf_matrix.shape)
-        self.assertEquals(clean_tf_names, net1_tf_names)
+        self.assertEquals(clean_tf_names, self.tf_matrix_gene_names)
 
 
 class TargetGeneIndicesTest(TestCase):
@@ -201,7 +211,7 @@ class Dream5Net1Tests(TestCase):
         self.assertEquals(net1_shape[1], len(net1_gene_names))
 
     def test_load_net1_tf_names(self):
-        self.assertEquals(195, len(net1_tf_names))
+        self.assertEquals(195, len(net1_tf_matrix_gene_names))
 
 
 if __name__ == '__main__':
