@@ -28,17 +28,16 @@ def load_gene_names(path, delimiter='\t'):
     return gene_names
 
 
-def load_tf_names(path, gene_names):
+def load_tf_names(path):
     """
     :param path: the path of the transcription factor list file.
-    :param gene_names: the list of gene names in the expression data.
-    :return: a list of transcription factor names read from the file, intersected with the gene_names list.
+    :return: a list of transcription factor names read from the file.
     """
 
     with open(path) as file:
         tfs_in_file = [line.strip() for line in file.readlines()]
 
-    return [tf for tf in tfs_in_file if tf in gene_names]
+    return tfs_in_file
 
 
 def create_dream5_graph(ex_path, tf_path,
@@ -55,6 +54,6 @@ def create_dream5_graph(ex_path, tf_path,
 
     expression_matrix = load_expression_matrix(ex_path)
     gene_names = load_gene_names(ex_path)
-    tf_names = load_tf_names(tf_path, gene_names)
+    tf_names = load_tf_names(tf_path)
 
     return create_graph(expression_matrix, gene_names, tf_names, regressor_type, regressor_kwargs, seed=seed)
