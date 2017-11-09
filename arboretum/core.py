@@ -14,7 +14,7 @@ DEMON_SEED = 666
 ANGEL_SEED = 777
 EARLY_STOP_WINDOW_LENGTH = 25
 
-PYTHONIC_REGRESSOR_FACTORY = {
+SKLEARN_REGRESSOR_FACTORY = {
     'RF': RandomForestRegressor,
     'ET': ExtraTreesRegressor,
     'GBM': GradientBoostingRegressor
@@ -60,12 +60,12 @@ XGB_KWARGS = {
 }
 
 
-def is_pythonic_regressor(regressor_type):
+def is_sklearn_regressor(regressor_type):
     """
     :param regressor_type: string. Case insensitive.
-    :return: whether the regressor type is a 'pythonic' regressor, following the scikit-learn API.
+    :return: whether the regressor type is a scikit-learn regressor, following the scikit-learn API.
     """
-    return regressor_type.upper() in PYTHONIC_REGRESSOR_FACTORY.keys()
+    return regressor_type.upper() in SKLEARN_REGRESSOR_FACTORY.keys()
 
 
 def is_xgboost_regressor(regressor_type):
@@ -130,7 +130,7 @@ def fit_model(regressor_type,
     assert tf_matrix.shape[0] == len(target_gene_expression)
 
     def pythonic():
-        regressor = PYTHONIC_REGRESSOR_FACTORY[regressor_type](random_state=seed, **regressor_kwargs)
+        regressor = SKLEARN_REGRESSOR_FACTORY[regressor_type](random_state=seed, **regressor_kwargs)
 
         with_early_stopping = is_oob_heuristic_supported(regressor_type, regressor_kwargs)
 
@@ -141,7 +141,7 @@ def fit_model(regressor_type,
 
         return regressor
 
-    if is_pythonic_regressor(regressor_type):
+    if is_sklearn_regressor(regressor_type):
         return pythonic()
     # elif is_xgboost_regressor(regressor_type):
     #     raise ValueError('XGB regressor not yet supported')
@@ -212,7 +212,7 @@ def to_links_df(regressor_type,
 
         return clean_links_df[['TF', 'target', 'importance']]
 
-    if is_pythonic_regressor(regressor_type):
+    if is_sklearn_regressor(regressor_type):
         return pythonic()
     elif is_xgboost_regressor(regressor_type):
         raise ValueError('XGB regressor not yet supported')
