@@ -3,11 +3,12 @@ Tests for the arboretum.core package.
 """
 
 import unittest
-from unittest import TestCase
-from arboretum.dream5.utils import *
 from random import shuffle
+from unittest import TestCase
 
 import dask
+
+from arboretum.utils import *
 
 net1_ex_path = '../resources/dream5/net1/net1_expression_data.tsv'
 net1_tf_path = '../resources/dream5/net1/net1_transcription_factors.tsv'
