@@ -7,6 +7,7 @@ from random import shuffle
 from unittest import TestCase
 
 import dask
+from distributed import Client, LocalCluster
 
 from arboretum.utils import *
 
@@ -125,6 +126,23 @@ class ComputeGraphTests(TestCase):  # slow
 
         self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
         self.assertEquals(len(self.test_range), len(meta_df['target'].unique()))
+
+    def test_with_distributed_client(self):
+        client = Client(LocalCluster())
+
+        graph = create_graph(net1_ex_matrix,
+                             net1_gene_names,
+                             net1_tf_names,
+                             "GBM",
+                             SGBM_KWARGS,
+                             target_genes=list(self.test_range),
+                             client=client)
+
+        network_df = client.compute(graph, sync=True)
+
+        self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
+
+        client.shutdown()
 
 
 class EarlyStopMonitorTests(TestCase):
