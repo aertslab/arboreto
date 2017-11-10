@@ -129,7 +129,7 @@ def fit_model(regressor_type,
 
     assert tf_matrix.shape[0] == len(target_gene_expression)
 
-    def pythonic():
+    def do_sklearn_regression():
         regressor = SKLEARN_REGRESSOR_FACTORY[regressor_type](random_state=seed, **regressor_kwargs)
 
         with_early_stopping = is_oob_heuristic_supported(regressor_type, regressor_kwargs)
@@ -142,7 +142,7 @@ def fit_model(regressor_type,
         return regressor
 
     if is_sklearn_regressor(regressor_type):
-        return pythonic()
+        return do_sklearn_regression()
     # elif is_xgboost_regressor(regressor_type):
     #     raise ValueError('XGB regressor not yet supported')
     else:
@@ -273,10 +273,15 @@ def infer_data(regressor_type,
              meta_df: a Pandas DataFrame['target', 'meta', 'value'] containing meta information regarding the trained
              regression model.
     """
+    # TODO logic to catch failing regressions
+
     (clean_tf_matrix, clean_tf_matrix_gene_names) = clean(tf_matrix, tf_matrix_gene_names, target_gene_name)
 
-    trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
-                                  early_stop_window_length, seed)
+    try:
+        trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
+                                      early_stop_window_length, seed)
+    except ValueError as e:
+        raise ValueError("target {} failed regression. From {}".format(target_gene_name, repr(e)))
 
     links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_matrix_gene_names, target_gene_name)
 
