@@ -327,6 +327,7 @@ def create_graph(expression_matrix,
                  tf_names,
                  regressor_type,
                  regressor_kwargs,
+                 client=None,
                  target_genes='all',
                  limit=None,
                  include_meta=False,
@@ -340,6 +341,10 @@ def create_graph(expression_matrix,
     :param tf_names: list of transcription factor names. Should have a non-empty intersection with gene_names.
     :param regressor_type: regressor type. Case insensitive.
     :param regressor_kwargs: dict of key-value pairs that configures the regressor.
+    :param client: a dask.distributed client instance.
+                   * Recommended to use in a distributed environment!
+                   * Used to scatter-broadcast the tf matrix to the workers instead of simply wrapping in a delayed().
+                   * If None, the tf_matrix will be wrapped in a delayed(), suboptimal in a distributed setting.
     :param target_genes: either int, 'all' or a collection that is a subset of gene_names.
     :param limit: int or None. Default 100k. The number of top regulatory links to return.
     :param include_meta: Also return the meta DataFrame. Default False.
@@ -351,7 +356,11 @@ def create_graph(expression_matrix,
 
     tf_matrix, tf_matrix_gene_names = to_tf_matrix(expression_matrix, gene_names, tf_names)
 
-    delayed_tf_matrix = delayed(tf_matrix, pure=True)
+    if client is None:
+        delayed_or_future_tf_matrix = delayed(tf_matrix, pure=True)
+    else:
+        delayed_or_future_tf_matrix = client.scatter(tf_matrix, broadcast=True)
+
     delayed_tf_matrix_gene_names = delayed(tf_matrix_gene_names, pure=True)
 
     delayed_link_dfs = []  # collection of delayed link DataFrames
@@ -364,7 +373,7 @@ def create_graph(expression_matrix,
         if include_meta:
             delayed_link_df, delayed_meta_df = delayed(infer_data, pure=True, nout=2)(
                 regressor_type, regressor_kwargs,
-                delayed_tf_matrix, delayed_tf_matrix_gene_names,
+                delayed_or_future_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)
@@ -372,7 +381,7 @@ def create_graph(expression_matrix,
         else:
             delayed_link_df = delayed(infer_data, pure=True)(
                 regressor_type, regressor_kwargs,
-                delayed_tf_matrix, delayed_tf_matrix_gene_names,
+                delayed_or_future_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
             delayed_link_dfs.append(delayed_link_df)
