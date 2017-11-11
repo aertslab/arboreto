@@ -266,7 +266,7 @@ def retry(fn, max_retries=10, warning_msg='', fallback_result=None):
         except Exception as cause:
             nr_retries += 1
 
-            warnings.warn(warning_msg + " - Cause {0}. Retrying ({1}/{2})".format(repr(cause), nr_retries, max_retries))
+            warnings.warn(warning_msg + " - Cause {0}. Retrying ({1}/{2}).".format(repr(cause), nr_retries, max_retries))
         else:
             break
 
@@ -310,7 +310,7 @@ def infer_data(regressor_type,
             trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
                                           early_stop_window_length, seed)
         except ValueError as e:
-            raise ValueError("Regression for target gene {0} failed. Cause {1}".format(target_gene_name, repr(e)))
+            raise ValueError("Regression for target gene {0} failed. Cause {1}.".format(target_gene_name, repr(e)))
 
         links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_matrix_gene_names,
                                target_gene_name)
