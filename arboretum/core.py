@@ -4,12 +4,14 @@ Core functional building blocks, composed in a Dask graph for distributed comput
 
 import numpy as np
 import pandas as pd
-import warnings
+import logging
 
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, ExtraTreesRegressor
 from dask import delayed
 from dask.dataframe import from_delayed
 from dask.dataframe.utils import make_meta
+
+logger = logging.getLogger(__name__)
 
 DEMON_SEED = 666
 ANGEL_SEED = 777
@@ -245,7 +247,7 @@ def clean(tf_matrix,
     return clean_tf_matrix, clean_tf_names
 
 
-def retry(fn, max_retries=10, warning_msg='', fallback_result=None):
+def retry(fn, max_retries=10, warning_msg=None, fallback_result=None):
     """
     Minimalistic retry strategy to compensate for failures probably caused by a thread-safety bug in scikit-learn:
     * https://github.com/scikit-learn/scikit-learn/issues/2755
@@ -267,7 +269,10 @@ def retry(fn, max_retries=10, warning_msg='', fallback_result=None):
         except Exception as cause:
             nr_retries += 1
 
-            warnings.warn(warning_msg + " - Cause {0}. Retrying ({1}/{2}).".format(repr(cause), nr_retries, max_retries))
+            msg_head = '' if warning_msg is None else repr(warning_msg) + ' '
+            msg_tail = "Retry ({1}/{2}). Failure caused by {0}.".format(repr(cause), nr_retries, max_retries)
+
+            logger.warning(msg_head + msg_tail)
         else:
             break
 
