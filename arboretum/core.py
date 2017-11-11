@@ -127,6 +127,7 @@ def fit_model(regressor_type,
     :param seed: (optional) random seed for the regressors.
     :return: a trained regression model.
     """
+    regressor_type = regressor_type.upper()
 
     assert tf_matrix.shape[0] == len(target_gene_expression)
 
