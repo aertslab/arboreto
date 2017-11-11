@@ -1,5 +1,5 @@
 """
-Tests for the arboretum.core package.
+Tests for arboretum.core.
 """
 
 import unittest
@@ -49,7 +49,7 @@ class ToTFMatrixTests(TestCase):
         self.assertEquals(net1_tf_matrix.shape, (805, 195))
 
 
-class InferDataTests(TestCase):  # slow
+class InferDataTests(TestCase):
 
     TF = 0
     NO_TF = 200
@@ -93,7 +93,48 @@ class InferDataTests(TestCase):  # slow
         self.inner("GBM", SGBM_KWARGS, self.TF, seed=None)
 
 
-class ComputeGraphTests(TestCase):  # slow
+class RetryTests(TestCase):
+
+    @staticmethod
+    def blue_skies():
+        return 1
+
+    @staticmethod
+    def i_will_never_work():
+        raise ValueError('nunca')
+
+    attempts = 0
+
+    def i_procrastinate(self):
+        self.attempts += 1
+
+        if self.attempts == 3:
+            return 1
+        else:
+            raise ValueError('manana')
+
+    def test_blue_skies(self):
+        result = retry(self.blue_skies)
+
+        self.assertEquals(result, 1)
+
+    def test_always_fails_no_fallback(self):
+        result = retry(self.i_will_never_work)
+
+        self.assertFalse(result)
+
+    def test_always_fails_with_fallback(self):
+        result = retry(self.i_will_never_work, fallback_result=1)
+
+        self.assertEquals(result, 1)
+
+    def test_succeeds_after_attempts(self):
+        result = retry(self.i_procrastinate)
+
+        self.assertEquals(result, 1)
+
+
+class ComputeGraphTests(TestCase):
 
     test_range = range(200, 205)
 

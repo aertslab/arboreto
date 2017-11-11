@@ -4,6 +4,7 @@ Core functional building blocks, composed in a Dask graph for distributed comput
 
 import numpy as np
 import pandas as pd
+import warnings
 
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, ExtraTreesRegressor
 from dask import delayed
@@ -243,6 +244,35 @@ def clean(tf_matrix,
     return clean_tf_matrix, clean_tf_names
 
 
+def retry(fn, max_retries=10, warning_msg='', fallback_result=None):
+    """
+    Minimalistic retry strategy to compensate for failures probably caused by a thread-safety bug in scikit-learn:
+    * https://github.com/scikit-learn/scikit-learn/issues/2755
+    * https://github.com/scikit-learn/scikit-learn/issues/7346
+
+    :param fn: the function to retry.
+    :param max_retries: the maximum number of retries to attempt.
+    :param warning_msg: a warning message to display when an attempt fails.
+    :param fallback_result: result to return when all attempts fail.
+    :return: Returns the result of fn if one attempt succeeds, else return fallback_result.
+    """
+    nr_retries = 0
+
+    result = fallback_result
+
+    for attempt in range(max_retries):
+        try:
+            result = fn()
+        except Exception as cause:
+            nr_retries += 1
+
+            warnings.warn(warning_msg + " - Cause {0}. Retrying ({1}/{2})".format(repr(cause), nr_retries, max_retries))
+        else:
+            break
+
+    return result
+
+
 def infer_data(regressor_type,
                regressor_kwargs,
                tf_matrix,
@@ -273,24 +303,30 @@ def infer_data(regressor_type,
              meta_df: a Pandas DataFrame['target', 'meta', 'value'] containing meta information regarding the trained
              regression model.
     """
-    # TODO logic to catch failing regressions
+    def fn():
+        (clean_tf_matrix, clean_tf_matrix_gene_names) = clean(tf_matrix, tf_matrix_gene_names, target_gene_name)
 
-    (clean_tf_matrix, clean_tf_matrix_gene_names) = clean(tf_matrix, tf_matrix_gene_names, target_gene_name)
+        try:
+            trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
+                                          early_stop_window_length, seed)
+        except ValueError as e:
+            raise ValueError("Regression for target gene {0} failed. Cause {1}".format(target_gene_name, repr(e)))
 
-    try:
-        trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
-                                      early_stop_window_length, seed)
-    except ValueError as e:
-        raise ValueError("target {} failed regression. From {}".format(target_gene_name, repr(e)))
+        links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_matrix_gene_names,
+                               target_gene_name)
 
-    links_df = to_links_df(regressor_type, regressor_kwargs, trained_regressor, clean_tf_matrix_gene_names, target_gene_name)
+        if include_meta:
+            meta_df = to_meta_df(trained_regressor, target_gene_name)
 
-    if include_meta:
-        meta_df = to_meta_df(trained_regressor, target_gene_name)
+            return links_df, meta_df
+        else:
+            return links_df
 
-        return links_df, meta_df
-    else:
-        return links_df
+    fallback_result = (None, None) if include_meta else None
+
+    return retry(fn,
+                 fallback_result=fallback_result,
+                 warning_msg='infer_data failed for target {0}'.format(target_gene_name))
 
 
 def target_gene_indices(gene_names,
@@ -381,21 +417,21 @@ def create_graph(expression_matrix,
                 delayed_or_future_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
-            delayed_link_dfs.append(delayed_link_df)
-            delayed_meta_dfs.append(delayed_meta_df)
+            if delayed_link_df is not None:
+                delayed_link_dfs.append(delayed_link_df)
+                delayed_meta_dfs.append(delayed_meta_df)
         else:
             delayed_link_df = delayed(infer_data, pure=True)(
                 regressor_type, regressor_kwargs,
                 delayed_or_future_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
 
-            delayed_link_dfs.append(delayed_link_df)
+            if delayed_link_df is not None:
+                delayed_link_dfs.append(delayed_link_df)
 
-    # gather the regulatory link DataFrames into one distributed DataFrame
+    # gather the DataFrames into one distributed DataFrame
     all_links_df = from_delayed(delayed_link_dfs,
                                 meta=make_meta({'TF': str, 'target': str, 'importance': float}))
-
-    # gather the meta information DataFrame into one distributed DataFrame
     all_meta_df = from_delayed(delayed_meta_dfs,
                                meta=make_meta({'target': str, 'n_estimators': int}))
 
