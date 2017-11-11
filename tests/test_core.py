@@ -101,7 +101,7 @@ class RetryTests(TestCase):
 
     @staticmethod
     def i_will_never_work():
-        raise ValueError('nunca')
+        raise ValueError('never')
 
     attempts = 0
 
@@ -111,7 +111,7 @@ class RetryTests(TestCase):
         if self.attempts == 3:
             return 1
         else:
-            raise ValueError('manana')
+            raise ValueError('later')
 
     def test_blue_skies(self):
         result = retry(self.blue_skies)
