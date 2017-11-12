@@ -42,3 +42,41 @@ distributed.core - WARNING - Event loop was unresponsive for 1.17s.  This is oft
     raise IOError(msg)                                                                                     
 OSError: Timed out trying to connect to 'tcp://10.118.224.141:35656' after 3.0 s: in <distributed.comm.tcp.TCPConnector object at 0x2b8aa76581d0>: ConnectionRefusedError: [Errno 111] Connection refused 
 ```
+
+
+Mapping a function of variable execution time over a large collection.
+
+I have a large collection of entries E and a function f: E --> pd.DataFrame.
+The execution time of function f can vary drastically for different inputs.
+Finally all DataFrames are aggregated into a single DataFrame.
+
+The situation I'd like to avoid is a partitioning (using 2 partitions for the 
+sake of the example) where accidentally all fast function executions happen 
+on partition 1 and all slow executions on partition 2, thus not optimally 
+using the workers.
+
+```
+partition 1:
+[==][==][==]
+
+partition 2:
+[============][=============][===============]
+```
+
+My current solution is to iterate over the collection of entries and create 
+a graph using `delayed`, aggregating the delayed partial DataFrame results in
+a final result DataFrame with `dd.from_delayed`.
+
+```python
+delayed_dfs = []  
+    
+for e in collection:
+    delayed_partial_df = delayed(f)(arg1, arg2, ...)
+    
+    delayed_dfs.append(delayed_partial_df)
+
+result_df = from_delayed(delayed_dfs, meta=make_meta({..}))
+```
+
+I reasoned that the Dask scheduler would take care of optimally assigning work
+to the available workers. Is this a reasonable approach?
