@@ -104,8 +104,6 @@ def to_tf_matrix(expression_matrix,
              1: The gene names corresponding to the columns in the predictor matrix.
     """
 
-    assert expression_matrix.shape[1] == len(gene_names)
-
     tuples = [(index, gene) for index, gene in enumerate(gene_names) if gene in tf_names]
 
     tf_indices = [t[0] for t in tuples]
@@ -400,6 +398,8 @@ def create_graph(expression_matrix,
     :return: if include_meta is False, returns a Dask graph that computes the links DataFrame.
              If include_meta is True, returns a tuple: the links DataFrame and the meta DataFrame.
     """
+
+    assert expression_matrix.shape[1] == len(gene_names)
 
     tf_matrix, tf_matrix_gene_names = to_tf_matrix(expression_matrix, gene_names, tf_names)
 
