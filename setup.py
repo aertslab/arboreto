@@ -9,7 +9,7 @@ setup(
     version='0.1',
     license='LICENSE.txt',
     author='Thomas Moerman',
-    author_email='thomas_DOT_moerman_AT_esat_DOT_kuleuven_DOT_be',
+    author_email='thomas.moerman@gmail.com',
     install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed'],
     python_requires=['2.7', '>=3.4'],
     platforms=['any'],
