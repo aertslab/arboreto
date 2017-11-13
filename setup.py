@@ -1,8 +1,8 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='arboretum',
-    packages=['arboretum'],
+    packages=find_packages(),
     long_description=open('README.md').read(),
     url='https://github.com/tmoerman/arboretum',
     download_url='https://github.com/tmoerman/arboretum/archive/0.1.tar.gz',
@@ -11,7 +11,5 @@ setup(
     author='Thomas Moerman',
     author_email='thomas.moerman@gmail.com',
     install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed'],
-    python_requires=['2.7', '>=3.4'],
-    platforms=['any'],
-    keywords='gene, regulatory, network, inference, scalable, tree-based, ensemble, regression'
+    python_requires=['2.7', '>=3.4']
 )
