@@ -87,12 +87,15 @@ class InferDataTests(TestCase):
         self.inner("GBM", GBM_KWARGS, self.TF)
         self.inner("GBM", GBM_KWARGS, self.NO_TF)
 
-    def test_smoke_fit_stochastic_GBM_model(self):
+    def test_smoke_fit_SGBM_model(self):
         self.inner("GBM", SGBM_KWARGS, self.TF)
         self.inner("GBM", SGBM_KWARGS, self.NO_TF)
 
-    def test_smoke_fit_stochastic_GBM_model_seed_None(self):
+    def test_smoke_fit_SGBM_model_seed_None(self):
         self.inner("GBM", SGBM_KWARGS, self.TF, seed=None)
+
+    def test_smoke_fit_light_GBM_model(self):
+        self.inner("LGBM", LGBM_KWARGS, self.TF)
 
 
 class RetryTests(TestCase):

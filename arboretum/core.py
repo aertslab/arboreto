@@ -7,6 +7,8 @@ import pandas as pd
 import logging
 
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, ExtraTreesRegressor
+from lightgbm import LGBMRegressor
+
 from dask import delayed
 from dask.dataframe import from_delayed
 from dask.dataframe.utils import make_meta
@@ -69,6 +71,10 @@ def is_sklearn_regressor(regressor_type):
     :return: whether the regressor type is a scikit-learn regressor, following the scikit-learn API.
     """
     return regressor_type.upper() in SKLEARN_REGRESSOR_FACTORY.keys()
+
+
+def is_light_gbm_regressor(regressor_type):
+    return regressor_type.upper() == 'LGBM'
 
 
 def is_xgboost_regressor(regressor_type):
@@ -145,8 +151,24 @@ def fit_model(regressor_type,
 
         return regressor
 
+    def do_light_gbm_regression():
+        regressor = LGBMRegressor(
+            learning_rate=0.01,
+            colsample_bytree=0.1,
+            objective='regression',
+            random_state=seed,
+            max_depth=3,
+            n_jobs=1,
+            n_estimators=1000)
+
+        regressor.fit(tf_matrix, target_gene_expression)
+
+        return regressor
+
     if is_sklearn_regressor(regressor_type):
         return do_sklearn_regression()
+    elif is_light_gbm_regressor(regressor_type):
+        return do_light_gbm_regression()
     # elif is_xgboost_regressor(regressor_type):
     #     raise ValueError('XGB regressor not yet supported')
     else:
@@ -205,7 +227,7 @@ def to_links_df(regressor_type,
              connection strength.
     """
 
-    def pythonic():
+    def links_from_sklearn_compatible_model():
         # feature_importances = trained_regressor.feature_importances_
         feature_importances = to_feature_importances(regressor_type, regressor_kwargs, trained_regressor)
 
@@ -217,7 +239,9 @@ def to_links_df(regressor_type,
         return clean_links_df[['TF', 'target', 'importance']]
 
     if is_sklearn_regressor(regressor_type):
-        return pythonic()
+        return links_from_sklearn_compatible_model()
+    elif is_light_gbm_regressor(regressor_type):
+        return links_from_sklearn_compatible_model()
     elif is_xgboost_regressor(regressor_type):
         raise ValueError('XGB regressor not yet supported')
     else:
