@@ -11,6 +11,7 @@ setup(
     author='Thomas Moerman',
     author_email='thomas_DOT_moerman_AT_esat_DOT_kuleuven_DOT_be',
     install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed'],
+    python_requires=['2.7', '>=3.4'],
     platforms=['any'],
     keywords=['gene', 'regulatory', 'network', 'inference', 'regression', 'ensemble', 'scalable']
 )
