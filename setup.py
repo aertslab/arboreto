@@ -13,5 +13,5 @@ setup(
     install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed'],
     python_requires=['2.7', '>=3.4'],
     platforms=['any'],
-    keywords=['gene', 'regulatory', 'network', 'inference', 'regression', 'ensemble', 'scalable']
+    keywords='gene, regulatory, network, inference, scalable, tree-based, ensemble, regression'
 )
