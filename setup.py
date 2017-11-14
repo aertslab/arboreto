@@ -10,7 +10,7 @@ setup(
     license='LICENSE.txt',
     author='Thomas Moerman',
     author_email='thomas.moerman@gmail.com',
-    install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed'],
+    install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed', 'lightgbm'],
     platforms=['any'],
     keywords=['gene', 'regulatory', 'network', 'inference', 'regression', 'ensemble', 'scalable']
 )
