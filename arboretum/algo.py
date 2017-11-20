@@ -29,13 +29,12 @@ def grnboost2(expression_data,
 
     expression_matrix, gene_names, tf_names = _clean_input(expression_data, gene_names, tf_names)
 
-    if client is None:
-        client = Client(LocalCluster())
+    client = _clean_client(client)
+
 
     # graph = create_graph(expression_matrix,
     #                      gene_names,
     #                      tf_names,
-    #
     #                      )
 
     return None
@@ -81,6 +80,33 @@ def diy(expression_df,
     :param seed:
     :return:
     """
+
+
+def _clean_client(client):
+    """
+    :param client: one of:
+                   * None
+                   * verbatim: 'local'
+                   * string address
+                   * a Client instance
+    :return: a Client instance in function of the input
+    :raises: ValueError if no valid client input was provided.
+    """
+
+    if client is None:
+        return Client(LocalCluster())
+
+    if isinstance(client, str) and client.lower() == 'local':
+        return Client(LocalCluster())
+
+    elif isinstance(client, str) and client.lower() != 'local':
+        return Client(client)
+
+    elif isinstance(client, Client):
+        return client
+
+    else:
+        raise ValueError("Invalid client specified {}".format(str(client)))
 
 
 def _clean_input(expression_data,
