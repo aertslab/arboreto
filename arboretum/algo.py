@@ -71,7 +71,7 @@ def diy(expression_data,
     :return:
     """
 
-    client = _prepare_client(client)
+    client, shutdown_callback = _prepare_client(client)
 
     try:
         expression_matrix, gene_names, tf_names = _prepare_input(expression_data, gene_names, tf_names)
@@ -87,7 +87,7 @@ def diy(expression_data,
 
         return client.compute(graph, sync=True).sort_values(by='importance', ascending=False)
     finally:
-        client.shutdown()
+        shutdown_callback()
 
 
 def _prepare_client(client):
@@ -97,21 +97,27 @@ def _prepare_client(client):
                    * verbatim: 'local'
                    * string address
                    * a Client instance
-    :return: a Client instance in function of the input
+    :return: a Client instance and a shutdown callback function.
     :raises: ValueError if no valid client input was provided.
     """
 
     if client is None:
-        return Client(LocalCluster())
+        client = Client(LocalCluster())
+
+        return client, lambda: client.shutdown()
 
     if isinstance(client, str) and client.lower() == 'local':
-        return Client(LocalCluster())
+        client = Client(LocalCluster())
+
+        return client, lambda: client.shutdown()
 
     elif isinstance(client, str) and client.lower() != 'local':
-        return Client(client)
+        client = Client(client)
+
+        return client, lambda: client.shutdown()
 
     elif isinstance(client, Client):
-        return client
+        return client, lambda: None
 
     else:
         raise ValueError("Invalid client specified {}".format(str(client)))
