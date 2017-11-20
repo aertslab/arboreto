@@ -4,15 +4,15 @@ Tests for arboretum.core.
 
 import unittest
 from random import shuffle
-from os.path import join, dirname
+from os.path import join
 from unittest import TestCase
 
 import dask
 from distributed import Client, LocalCluster
 
 from arboretum.utils import *
+from tests import resources_path
 
-resources_path = join(dirname(__file__).split('tests')[0], 'resources')
 net1_ex_path = join(resources_path, 'dream5/net1/net1_expression_data.tsv')
 net1_tf_path = join(resources_path, 'dream5/net1/net1_transcription_factors.tsv')
 

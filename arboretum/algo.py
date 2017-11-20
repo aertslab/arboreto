@@ -1,88 +1,99 @@
 """
-Top-level API functions.
+Top-level functions.
 """
 
 import pandas as pd
-import numpy as np
-
 from distributed import Client, LocalCluster
-from arboretum.core import create_graph, DEMON_SEED
+from arboretum.core import create_graph, DEMON_SEED, SGBM_KWARGS, RF_KWARGS
 
 
 def grnboost2(expression_data,
-              tf_names='all',
               gene_names=None,
-              client=None,
+              tf_names='all',
+              client='local',
               limit=None,
               seed=DEMON_SEED):
     """
-    Launch arboretum with the GRNBoost2 inference profile.
+    Launch arboretum with GRNBoost2 profile.
 
     :param expression_data:
-    :param tf_names:
     :param gene_names:
+    :param tf_names:
     :param client:
     :param limit:
     :param seed:
     :return:
     """
 
-    expression_matrix, gene_names, tf_names = _clean_input(expression_data, gene_names, tf_names)
-
-    client = _clean_client(client)
-
-
-    # graph = create_graph(expression_matrix,
-    #                      gene_names,
-    #                      tf_names,
-    #                      )
-
-    return None
+    return diy(expression_data=expression_data, regressor_type='SGBM', regressor_kwargs=SGBM_KWARGS,
+               gene_names=gene_names, tf_names=tf_names, client=client, limit=limit, seed=seed)
 
 
-def genie3(expression_df,
-           tf_names='all',
+def genie3(expression_data,
            gene_names=None,
-           client=None,
+           tf_names='all',
+           client='local',
            limit=None,
            seed=DEMON_SEED):
     """
-    Launch arboretum with the GENIE3 inference profile.
+    Launch arboretum with GENIE3 profile.
 
-    :param expression_df:
-    :param tf_names:
+    :param expression_data:
     :param gene_names:
+    :param tf_names:
     :param client:
     :param limit:
     :param seed:
     :return:
     """
 
+    return diy(expression_data=expression_data, regressor_type='RF', regressor_kwargs=RF_KWARGS,
+               gene_names=gene_names, tf_names=tf_names, client=client, limit=limit, seed=seed)
 
-def diy(expression_df,
+
+def diy(expression_data,
         regressor_type,
         regressor_kwargs,
-        tf_names='all',
         gene_names=None,
-        client=None,
+        tf_names='all',
+        client='local',
         limit=None,
         seed=DEMON_SEED):
     """
-    Launch arboretum in DIY mode, the user specifies regressor type and kwargs.
-
-    :param expression_df:
+    :param expression_data:
     :param regressor_type:
     :param regressor_kwargs:
-    :param tf_names:
     :param gene_names:
+    :param tf_names:
     :param client:
     :param limit:
     :param seed:
     :return:
     """
 
+    client = _prepare_client(client)
 
-def _clean_client(client):
+    try:
+        expression_matrix, gene_names, tf_names = _prepare_input(expression_data, gene_names, tf_names)
+
+        graph = create_graph(expression_matrix,
+                             gene_names,
+                             tf_names,
+                             client=client,
+                             regressor_type=regressor_type,
+                             regressor_kwargs=regressor_kwargs,
+                             limit=limit,
+                             seed=seed)
+
+        network_df = client.compute(graph, sync=True)
+
+        return network_df
+
+    finally:
+        client.shutdown()
+
+
+def _prepare_client(client):
     """
     :param client: one of:
                    * None
@@ -109,27 +120,36 @@ def _clean_client(client):
         raise ValueError("Invalid client specified {}".format(str(client)))
 
 
-def _clean_input(expression_data,
-                 gene_names,
-                 tf_names):
+def _prepare_input(expression_data,
+                   gene_names,
+                   tf_names):
     """
     Wrangle the inputs into the correct formats.
 
-    :param expression_data: a pandas DataFrame (rows=observations, columns=genes) or a 2D numpy.ndarray.
+    :param expression_data: accepts one of:
+                            * a pandas DataFrame (rows=observations, columns=genes)
+                            * a dense 2D numpy.ndarray
+                            * a sparse scipy.sparce.csc_matrix
     :param gene_names: optional list of gene names. Used in conjunction with passing a numpy.ndarray as the value for
                        expression_data.
     :param tf_names: optional list of transcription factors. If None, all gene_names will be used.
-    :return: Returns a triple: np.ndarray, a list of gene name strings, a list of transcription factor name strings.
+
+    :return: a triple of:
+             1. a np.ndarray or scipy.sparse.csc_matrix
+             2. a list of gene name strings
+             3. a list of transcription factor name strings.
     """
 
     if isinstance(expression_data, pd.DataFrame):
         expression_matrix = expression_data.as_matrix()
-        gene_names = list(expression_matrix.columns)
+        gene_names = list(expression_data.columns)
     else:
         expression_matrix = expression_data
         assert expression_matrix.shape[1] == len(gene_names)
 
     if tf_names is None:
+        tf_names = gene_names
+    elif tf_names == 'all':
         tf_names = gene_names
     else:
         if len(tf_names) == 0:

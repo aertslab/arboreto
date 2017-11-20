@@ -52,16 +52,6 @@ SGBM_KWARGS = {
     'subsample': 0.9
 }
 
-# Microsoft LightGBM regressor
-LGBM_KWARGS = {
-    # TODO
-}
-
-# xgboost regressor
-XGB_KWARGS = {
-    # TODO
-}
-
 
 def is_sklearn_regressor(regressor_type):
     """
