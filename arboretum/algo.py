@@ -25,7 +25,7 @@ def grnboost2(expression_data,
     :return:
     """
 
-    return diy(expression_data=expression_data, regressor_type='SGBM', regressor_kwargs=SGBM_KWARGS,
+    return diy(expression_data=expression_data, regressor_type='GBM', regressor_kwargs=SGBM_KWARGS,
                gene_names=gene_names, tf_names=tf_names, client=client, limit=limit, seed=seed)
 
 
@@ -85,11 +85,9 @@ def diy(expression_data,
                              limit=limit,
                              seed=seed)
 
-        network_df = client.compute(graph, sync=True)
+        return client.compute(graph, sync=True).sort_values(by='importance', ascending=False)
     finally:
         client.shutdown()
-
-    return network_df
 
 
 def _prepare_client(client):

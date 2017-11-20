@@ -10,6 +10,7 @@ from distributed import Client, LocalCluster
 from os.path import join
 
 from arboretum.algo import _prepare_input, _prepare_client
+from arboretum.algo import grnboost2, genie3
 from arboretum.utils import *
 from tests import resources_path
 
@@ -96,11 +97,15 @@ class PrepareInputTest(TestCase):
 
 class LaunchTests(TestCase):
 
-    def launch_grnboost2(self):
-        print("hello")
+    def test_launch_grnboost2(self):
+        network_df = grnboost2(df, tf_names=tfs)
 
-    def launch_genie3(self):
-        print("hello")
+        self.assertGreater(len(network_df), 100)
+
+    def test_launch_genie3(self):
+        network_df = genie3(df, tf_names=tfs)
+
+        self.assertGreater(len(network_df), 100)
 
 
 if __name__ == '__main__':
