@@ -18,26 +18,26 @@ from tests import resources_path
 class PrepareClientTest(TestCase):
 
     def test_None(self):
-        client = _prepare_client(None)
+        client, shutdown_callback = _prepare_client(None)
 
         self.assertIn('127.0.0.1', client.scheduler.address)
 
-        client.shutdown()
+        shutdown_callback()
 
     def test_local(self):
-        client = _prepare_client('local')
+        client, shutdown_callback = _prepare_client('local')
 
         self.assertIn('127.0.0.1', client.scheduler.address)
 
-        client.shutdown()
+        shutdown_callback()
 
     def test_client(self):
         passed = Client(LocalCluster())
-        client = _prepare_client(passed)
+        client, shutdown_callback = _prepare_client(passed)
 
         self.assertEqual(client, passed)
 
-        client.shutdown()
+        shutdown_callback()
 
     def test_address(self):
         with self.assertRaises(OSError) as context:
