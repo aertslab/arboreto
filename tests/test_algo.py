@@ -21,16 +21,22 @@ class PrepareClientTest(TestCase):
 
         self.assertIn('127.0.0.1', client.scheduler.address)
 
+        client.shutdown()
+
     def test_local(self):
         client = _prepare_client('local')
 
         self.assertIn('127.0.0.1', client.scheduler.address)
+
+        client.shutdown()
 
     def test_client(self):
         passed = Client(LocalCluster())
         client = _prepare_client(passed)
 
         self.assertEqual(client, passed)
+
+        client.shutdown()
 
     def test_address(self):
         with self.assertRaises(OSError) as context:
