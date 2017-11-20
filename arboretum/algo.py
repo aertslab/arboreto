@@ -86,11 +86,10 @@ def diy(expression_data,
                              seed=seed)
 
         network_df = client.compute(graph, sync=True)
-
-        return network_df
-
     finally:
         client.shutdown()
+
+    return network_df
 
 
 def _prepare_client(client):
