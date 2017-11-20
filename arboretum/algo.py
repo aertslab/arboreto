@@ -60,6 +60,29 @@ def genie3(expression_df,
     """
 
 
+def diy(expression_df,
+        regressor_type,
+        regressor_kwargs,
+        tf_names='all',
+        gene_names=None,
+        client=None,
+        limit=None,
+        seed=DEMON_SEED):
+    """
+    Launch arboretum in DIY mode, the user specifies regressor type and kwargs.
+
+    :param expression_df:
+    :param regressor_type:
+    :param regressor_kwargs:
+    :param tf_names:
+    :param gene_names:
+    :param client:
+    :param limit:
+    :param seed:
+    :return:
+    """
+
+
 def _clean_input(expression_data,
                  gene_names,
                  tf_names):
@@ -76,16 +99,17 @@ def _clean_input(expression_data,
     if isinstance(expression_data, pd.DataFrame):
         expression_matrix = expression_data.as_matrix()
         gene_names = list(expression_matrix.columns)
-    elif isinstance(expression_data, np.ndarray):
+    else:
         expression_matrix = expression_data
         assert expression_matrix.shape[1] == len(gene_names)
-    else:
-        raise ValueError('`expression_matrix` must be either a pandas DataFrame or a numpy ndarray.'
-                         'Instead got: {0}'.format(str(type(expression_data))))
 
     if tf_names is None:
         tf_names = gene_names
     else:
-        assert len(tf_names) > 0
+        if len(tf_names) == 0:
+            raise ValueError('Specified tf_names is empty')
+
+        if not set(gene_names).intersection(set(tf_names)):
+            raise ValueError('Intersection of gene_names and tf_names is empty.')
 
     return expression_matrix, gene_names, tf_names
