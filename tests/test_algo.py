@@ -2,7 +2,6 @@
 Tests for arboretum.algo.
 """
 
-import unittest
 from unittest import TestCase
 
 from scipy.sparse import csc_matrix
@@ -106,7 +105,3 @@ class LaunchTests(TestCase):
         network_df = genie3(df, tf_names=tfs)
 
         self.assertGreater(len(network_df), 100)
-
-
-if __name__ == '__main__':
-    unittest.main()

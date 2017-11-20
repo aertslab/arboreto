@@ -2,7 +2,6 @@
 Tests for arboretum.core.
 """
 
-import unittest
 from random import shuffle
 from os.path import join
 from unittest import TestCase
@@ -274,7 +273,3 @@ class Dream5Net1Tests(TestCase):
 
     def test_load_net1_tf_names(self):
         self.assertEquals(195, len(net1_tf_matrix_gene_names))
-
-
-if __name__ == '__main__':
-    unittest.main()
