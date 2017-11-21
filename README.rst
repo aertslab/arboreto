@@ -11,11 +11,10 @@
     :alt: Documentation Status
     :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
 
-*The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
-    **- Kenneth Oakley**
 
+    *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
+        **- Kenneth Oakley**
 
--
 ----
 
 .. _GENIE3: http://www.montefiore.ulg.ac.be/~huynh-thu/GENIE3.html
@@ -26,7 +25,7 @@
 .. _`Random Forest`: https://en.wikipedia.org/wiki/Random_forest
 .. _ExtraTrees: https://en.wikipedia.org/wiki/Random_forest#ExtraTrees
 .. _`Stochastic Gradient Boosting Machine`: https://en.wikipedia.org/wiki/Gradient_boosting#Stochastic_gradient_boosting
-.. _`early stopping`: https://en.wikipedia.org/wiki/Early_stopping
+.. _`early-stopping`: https://en.wikipedia.org/wiki/Early_stopping
 
 Inferring a gene regulatory network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances
 in high-throughput gene profiling technology.
