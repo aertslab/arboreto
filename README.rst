@@ -42,7 +42,7 @@ a series of steps, one for each target gene in the network, where the most impor
 model to predict a target gene's expression profile.
 
 Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboretum,
-we specify the parallelizable computation as a dask graph [2], a data structure that represents the task schedule of a computation. A dask scheduler assigns the
+we specify the parallelizable computation as a dask_ graph [2], a data structure that represents the task schedule of a computation. A dask scheduler assigns the
 tasks in a dask graph to the available computational resources. Arboretum uses the `dask distributed`_ scheduler to
 spread out the computational tasks over multiple processes running on one or multiple machines.
 
