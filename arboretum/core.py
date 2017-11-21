@@ -110,7 +110,7 @@ def fit_model(regressor_type,
               seed=DEMON_SEED):
     """
     :param regressor_type: string. Case insensitive.
-    :param regressor_kwargs: a dict of key-value pairs that configures the regressor.
+    :param regressor_kwargs: a dictionary of key-value pairs that configures the regressor.
     :param tf_matrix: the predictor matrix (transcription factor matrix) as a numpy array.
     :param target_gene_expression: the target (y) gene expression to predict in function of the tf_matrix (X).
     :param early_stop_window_length: window length of the early stopping monitor.
@@ -151,7 +151,7 @@ def to_feature_importances(regressor_type,
     This enables prioritizing links that were inferred in a regression where lots of
 
     :param regressor_type: string. Case insensitive.
-    :param regressor_kwargs: dict of key-value pairs that configures the regressor.
+    :param regressor_kwargs: a dictionary of key-value pairs that configures the regressor.
     :param trained_regressor: the trained model from which to extract the feature importances.
     :return: the feature importances inferred from the trained model.
     """
@@ -381,10 +381,10 @@ def create_graph(expression_matrix,
                    * Used to scatter-broadcast the tf matrix to the workers instead of simply wrapping in a delayed().
                    * If None, the tf_matrix will be wrapped in a delayed(), suboptimal in a distributed setting.
     :param target_genes: either int, 'all' or a collection that is a subset of gene_names.
-    :param limit: int or None. Default 100k. The number of top regulatory links to return.
+    :param limit: optional number of top regulatory links to return. Default None.
     :param include_meta: Also return the meta DataFrame. Default False.
     :param early_stop_window_length: window length of the early stopping monitor.
-    :param seed: (optional) random seed for the regressors.
+    :param seed: (optional) random seed for the regressors. Default 666.
     :return: if include_meta is False, returns a Dask graph that computes the links DataFrame.
              If include_meta is True, returns a tuple: the links DataFrame and the meta DataFrame.
     """
