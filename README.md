@@ -1,7 +1,5 @@
 ![](img/arboretum.png)
 
-A scalable framework for gene regulatory network inference using tree-based ensemble regressors.
-
 [![Build Status](https://travis-ci.org/tmoerman/arboretum.svg?branch=master)](https://travis-ci.org/tmoerman/arboretum)
 [![Documentation Status](https://readthedocs.org/projects/arboretum/badge/?version=latest)](http://arboretum.readthedocs.io/en/latest/?badge=latest)
 
