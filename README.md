@@ -29,7 +29,7 @@ regularization.
 
 ## Get Started
 
-Arboretum was conceived with the working bioinformaticion or data scientist in mind. We provide extensive documentation and examples to help you get up to speed with the library.
+Arboretum was conceived with the working bioinformatician or data scientist in mind. We provide extensive documentation and examples to help you get up to speed with the library.
 
 * Read the [arboretum documentation](arboretum.readthedocs.io).
 * Browse example [notebooks](https://github.com/tmoerman/arboretum/tree/master/notebooks).
