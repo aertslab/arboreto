@@ -11,18 +11,20 @@
     :alt: Documentation Status
     :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
 
-----
+
 
     *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
         **- Kenneth Oakley**
 
-----
-
-.. _GENIE3: http://www.montefiore.ulg.ac.be/~huynh-thu/GENIE3.html
+.. _arboretum: https://arboretum.readthedocs.io
+.. _`arboretum documentation`: https://arboretum.readthedocs.io
+.. _notebooks: https://github.com/tmoerman/arboretum/tree/master/notebooks
+.. _issue: https://github.com/tmoerman/arboretum/issues/new
 
 .. _dask: https://dask.pydata.org/en/latest/
 .. _`dask distributed`: https://distributed.readthedocs.io/en/latest/
 
+.. _GENIE3: http://www.montefiore.ulg.ac.be/~huynh-thu/GENIE3.html
 .. _`Random Forest`: https://en.wikipedia.org/wiki/Random_forest
 .. _ExtraTrees: https://en.wikipedia.org/wiki/Random_forest#ExtraTrees
 .. _`Stochastic Gradient Boosting Machine`: https://en.wikipedia.org/wiki/Gradient_boosting#Stochastic_gradient_boosting
@@ -31,7 +33,7 @@
 Inferring a gene regulatory network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances
 in high-throughput gene profiling technology.
 
-The *arboretum* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
+The *arboretum_* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
 exemplified by GENIE3_ [1] on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
 a series of steps, one for each target gene in the network, where the most important candidates from a set of regulators are determined from a regression
 model to predict a target gene's expression profile.
@@ -56,10 +58,6 @@ References
 
 Get Started
 ***********
-
-.. _`arboretum documentation`: https://arboretum.readthedocs.io
-.. _notebooks: https://github.com/tmoerman/arboretum/tree/master/notebooks
-.. _issue: https://github.com/tmoerman/arboretum/issues/new
 
 Arboretum was conceived with the working bioinformatician or data scientist in mind. We provide extensive documentation and examples to help you get up to speed with the library.
 
