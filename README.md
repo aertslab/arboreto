@@ -5,7 +5,8 @@ A scalable framework for gene regulatory network inference using tree-based ense
 [![Build Status](https://travis-ci.org/tmoerman/arboretum.svg?branch=master)](https://travis-ci.org/tmoerman/arboretum)
 [![Documentation Status](https://readthedocs.org/projects/arboretum/badge/?version=latest)](http://arboretum.readthedocs.io/en/latest/?badge=latest)
 
-> *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.* -- **Kenneth Oakley**
+> *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
+> **Kenneth Oakley**
 
 ---
 
