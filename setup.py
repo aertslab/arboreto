@@ -12,5 +12,5 @@ setup(
     author_email='thomas.moerman@gmail.com',
     install_requires=['scikit-learn', 'numpy', 'scipy', 'pandas', 'dask', 'distributed'],
     platforms=['any'],
-    keywords=['gene', 'regulatory', 'network', 'inference', 'regression', 'ensemble', 'scalable']
+    keywords=['gene', 'regulatory', 'network', 'inference', 'regression', 'ensemble', 'scalable', 'dask']
 )
