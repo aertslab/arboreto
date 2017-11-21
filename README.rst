@@ -11,10 +11,11 @@
     :alt: Documentation Status
     :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
 
+----
+
 .. epigraph::
 
-    The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.
-    
+    *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
     -- Kenneth Oakley
 
 .. _arboretum: https://arboretum.readthedocs.io
