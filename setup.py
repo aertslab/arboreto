@@ -6,7 +6,7 @@ setup(
     long_description=open('README.rst').read(),
     url='https://github.com/tmoerman/arboretum',
     download_url='https://github.com/tmoerman/arboretum/archive/0.1.tar.gz',
-    version='0.1',
+    version='0.1.1',
     license='LICENSE.txt',
     author='Thomas Moerman',
     author_email='thomas.moerman@gmail.com',
