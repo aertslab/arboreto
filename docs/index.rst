@@ -36,9 +36,7 @@
 Inferring a gene regulatory network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances
 in high-throughput gene profiling technology.
 
-.. sidebar:: **Get started**
-
-    * Install_ using pip_:
+.. sidebar:: **Quick Start**
 
     .. code-block:: bash
 
@@ -47,8 +45,10 @@ in high-throughput gene profiling technology.
     * Read the `user guide`_.
     * Browse examples_.
     * Report an issue_.
-    
-    * Source code at github_.
+
+    |
+
+    Source code at github_.
 
 The *arboretum* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
 exemplified by GENIE3_ [1] on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
@@ -81,6 +81,8 @@ Example
     import numpy as np
     import pandas as pd
 
+Check out more examples_.
+
 License
 =======
 
@@ -93,4 +95,4 @@ BSD 3-Clause License
     user/installation
     user/index
     user/examples
-    user/benchmark
+    user/algorithms

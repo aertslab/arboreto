@@ -1,29 +1,14 @@
 User Guide
 ==========
 
-
-
-
-Package Structure
------------------
-
+Package Overview
+----------------
 
 Input / Output
 --------------
 
+Single-node
+-----------
 
-
-GRN Inference Algorithms
-------------------------
-
-GRNBoost2
-~~~~~~~~~
-
-GENIE3
-~~~~~~
-
-DIY
-~~~
-
-Parameters Guide
-----------------
+Clustered
+---------
