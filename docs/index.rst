@@ -32,6 +32,7 @@
 .. _install: user/installation.html
 .. _examples: user/examples.html
 .. _`user guide`: user/index.html
+.. _`GRN inference algorithms`: user/algorithms.html
 
 Inferring a gene regulatory network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances
 in high-throughput gene profiling technology.
@@ -60,7 +61,7 @@ we specify the parallelizable computation as a dask_ graph [2], a data structure
 tasks in a dask graph to the available computational resources. Arboretum uses the `dask distributed`_ scheduler to
 spread out the computational tasks over multiple processes running on one or multiple machines.
 
-Arboretum currently supports 2 GRN inference algorithms:
+Arboretum currently supports 2 `GRN inference algorithms`_:
 
 1. **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ (SGBM) [3] regression with `early-stopping`_ regularization.
 
@@ -96,3 +97,4 @@ BSD 3-Clause License
     user/index
     user/examples
     user/algorithms
+    user/concept

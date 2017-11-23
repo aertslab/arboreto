@@ -1,27 +1,37 @@
 Installation Guide
 ==================
 
-This page describes the installation procedure for arboretum.
-
 .. _anaconda: https://www.anaconda.com/download/#macos
 .. _miniconda: https://conda.io/miniconda.html
+.. _conda: https://conda.io/docs/user-guide/getting-started.html
+.. _numpy: http://www.numpy.org/
+.. _scipy: https://www.scipy.org/
 
-.. attention::
+.. caution:: **Python Environment**
 
-    It is recommended to use an Anaconda_ or Miniconda_ distribution for your
-    Python environment.
+    It is highly recommended to prepare a Python environment with the Anaconda_
+    or Miniconda_ distribution and install arboretum's dependencies using the
+    conda_ package manager.
 
-Using Pip
----------
+    - numpy
+    - scipy
+    - scikit-learn
+    - pandas
+    - dask
+    - distributed
 
-.. _pypi: https://pypi.python.org/pypi
+    This avoids complexities in ensuring that libraries like numpy_ and scipy_
+    link against an optimized implementation of linear algebra routines.
+
+Install Using Pip
+-----------------
+
+.. _pypi: https://pypi.python.org/pypi/arboretum/
 .. _pip: https://pip.pypa.io/en/stable/
 .. _git: https://git-scm.com/
 
 The arboretum package is available from PyPI_ (Python Package Index), a repository
 of software for the Python programming language.
-
-Pip_ is a tool for `installing Python packages <https://pip.pypa.io/en/stable/quickstart/>`_.
 
 Using pip_, installing the arboretum package is straightforward:
 
@@ -29,12 +39,33 @@ Using pip_, installing the arboretum package is straightforward:
 
     $ pip install arboretum
 
-Using Conda
------------
+.. note::
+    You can use pip_ to install arboretum in an Anaconda_ environment.
+
+.. .. caution::
 
     TODO
 
-From Source
------------
+    Although pip is able to take care of installing arboretum's dependencies,
+    we recommend preparing an Anaconda_ environment (or using it as your main
+    Python installation) with following dependencies already installed using
+    conda_:
+
+    .. code-block:: bash
+
+        * numpy
+        * scipy
+        * scikit-learn
+        * pandas
+        * dask
+        * distributed
+
+Install Using Conda
+-------------------
+
+    TODO
+
+Install from Source
+-------------------
 
     TODO
