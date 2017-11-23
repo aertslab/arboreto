@@ -40,8 +40,6 @@ in high-throughput gene profiling technology.
 
     * Install_ using pip_:
 
-    |
-
     .. code-block:: bash
 
         $ pip install arboretum
@@ -49,9 +47,7 @@ in high-throughput gene profiling technology.
     * Read the `user guide`_.
     * Browse examples_.
     * Report an issue_.
-
-    |
-
+    
     * Source code at github_.
 
 The *arboretum* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
