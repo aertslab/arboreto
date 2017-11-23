@@ -17,8 +17,6 @@
 
     *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
 
-    -- Kenneth Oakley
-
 .. _arboretum: https://arboretum.readthedocs.io
 .. _`arboretum documentation`: https://arboretum.readthedocs.io
 .. _notebooks: https://github.com/tmoerman/arboretum/tree/master/notebooks
@@ -48,8 +46,8 @@ spread out the computational tasks over multiple processes running on one or mul
 
 Arboretum currently supports 2 GRN inference algorithms:
 
-* **GENIE3**: the classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
-* **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ (SGBM) [3] regression with `early-stopping`_ regularization.
+1. **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ (SGBM) [3] regression with `early-stopping`_ regularization.
+2. **GENIE3**: the classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
 
 References
 **********
