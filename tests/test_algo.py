@@ -42,7 +42,7 @@ class PrepareClientTest(TestCase):
         lc.close()
 
     def test_address(self):
-        with self.assertRaises(OSError) as context:
+        with self.assertRaises(Exception) as context:
             address = 'tcp://127.0.0.2:12345'
             _prepare_client(address)
 
