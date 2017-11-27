@@ -139,6 +139,7 @@ class ComputeGraphTests(TestCase):
 
     test_range = range(200, 205)
 
+    @skip
     def test_net1_only_links_3_targets(self):
         graph = create_graph(net1_ex_matrix,
                              net1_gene_names,
@@ -151,6 +152,7 @@ class ComputeGraphTests(TestCase):
 
         self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
 
+    @skip
     def test_net1_links_and_meta_3_targets(self):
         network_graph, meta_graph = create_graph(net1_ex_matrix,
                                                  net1_gene_names,
@@ -169,9 +171,9 @@ class ComputeGraphTests(TestCase):
         self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
         self.assertEquals(len(self.test_range), len(meta_df['target'].unique()))
 
-    @skip("Travis-ci issue")
     def test_with_distributed_client(self):
-        client = Client(LocalCluster())
+        lc = LocalCluster()
+        client = Client(lc)
 
         graph = create_graph(net1_ex_matrix,
                              net1_gene_names,
@@ -186,6 +188,7 @@ class ComputeGraphTests(TestCase):
         self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
 
         client.shutdown()
+        lc.close()
 
 
 class EarlyStopMonitorTests(TestCase):

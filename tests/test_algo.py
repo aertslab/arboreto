@@ -14,7 +14,6 @@ from arboretum.utils import *
 from tests import resources_path
 
 
-@skip("Travis-ci issue")
 class PrepareClientTest(TestCase):
 
     def test_None(self):
@@ -32,12 +31,15 @@ class PrepareClientTest(TestCase):
         shutdown_callback()
 
     def test_client(self):
-        passed = Client(LocalCluster())
+        lc = LocalCluster()
+        passed = Client(lc)
+
         client, shutdown_callback = _prepare_client(passed)
 
         self.assertEqual(client, passed)
 
         shutdown_callback()
+        lc.close()
 
     def test_address(self):
         with self.assertRaises(OSError) as context:
@@ -95,7 +97,6 @@ class PrepareInputTest(TestCase):
         self.assertEquals(4, len(t))
 
 
-@skip("Travis-ci issue")
 class LaunchTests(TestCase):
 
     def test_launch_grnboost2(self):

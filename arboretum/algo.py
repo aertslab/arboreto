@@ -19,7 +19,7 @@ def grnboost2(expression_data,
     :param expression_data: one of:
            * a pandas DataFrame (rows=observations, columns=genes)
            * a dense 2D numpy.ndarray
-           * a sparse scipy.sparce.csc_matrix
+           * a sparse scipy.sparse.csc_matrix
     :param gene_names: optional list of gene names (strings). Required when a (dense or sparse) matrix is passed as
                        'expression_data' instead of a DataFrame.
     :param tf_names: optional list of transcription factors. If None or 'all', the list of gene_names will be used.
@@ -48,7 +48,7 @@ def genie3(expression_data,
     :param expression_data: one of:
            * a pandas DataFrame (rows=observations, columns=genes)
            * a dense 2D numpy.ndarray
-           * a sparse scipy.sparce.csc_matrix
+           * a sparse scipy.sparse.csc_matrix
     :param gene_names: optional list of gene names (strings). Required when a (dense or sparse) matrix is passed as
                        'expression_data' instead of a DataFrame.
     :param tf_names: optional list of transcription factors. If None or 'all', the list of gene_names will be used.
@@ -72,12 +72,13 @@ def diy(expression_data,
         tf_names='all',
         client_or_address='local',
         limit=None,
-        seed=None):
+        seed=None,
+        verbose=False):
     """
     :param expression_data: one of:
            * a pandas DataFrame (rows=observations, columns=genes)
            * a dense 2D numpy.ndarray
-           * a sparse scipy.sparce.csc_matrix
+           * a sparse scipy.sparse.csc_matrix
     :param regressor_type: string. One of: 'RF', 'GBM', 'ET'. Case insensitive.
     :param regressor_kwargs: a dictionary of key-value pairs that configures the regressor.
     :param gene_names: optional list of gene names (strings). Required when a (dense or sparse) matrix is passed as
@@ -89,28 +90,44 @@ def diy(expression_data,
            * a Client instance: the specified Client instance will be used to perform the computation.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default 666. Use None for random seed.
+    :param verbose: print info.
     :return: a pandas DataFrame['TF', 'target', 'importance'] representing the inferred gene regulatory links.
     """
+    if verbose:
+        print('preparing distributed client')
 
-    # client_or_address, shutdown_callback = _prepare_client(client_or_address)
-    client, is_distributed = _prepare_client(client_or_address)
+    client, shutdown_callback = _prepare_client(client_or_address)
+
+    if verbose:
+        print(client._repr_html_())
 
     try:
+        if verbose:
+            print('parsing input')
+
         expression_matrix, gene_names, tf_names = _prepare_input(expression_data, gene_names, tf_names)
+
+        if verbose:
+            print('creating dask graph')
 
         graph = create_graph(expression_matrix,
                              gene_names,
                              tf_names,
-                             client=client if is_distributed else None,
+                             client=client,
                              regressor_type=regressor_type,
                              regressor_kwargs=regressor_kwargs,
                              limit=limit,
                              seed=seed)
 
+        if verbose:
+            print('computing the dask graph')
+
         return client.compute(graph, sync=True).sort_values(by='importance', ascending=False)
     finally:
-        if not is_distributed:
-            client.shutdown()
+        shutdown_callback(verbose)
+
+        if verbose:
+            print('finished')
 
 
 def _prepare_client(client_or_address):
@@ -124,31 +141,36 @@ def _prepare_client(client_or_address):
     :raises: ValueError if no valid client input was provided.
     """
 
-    if client_or_address is None:
-        client = Client(LocalCluster())
+    if client_or_address is None or str(client_or_address).lower() == 'local':
+        local_cluster = LocalCluster()
+        client = Client(local_cluster)
 
-        print(repr(client))
+        def shutdown_client_and_local_cluster(verbose=False):
+            if verbose:
+                print('shutting down LocalCluster and Client')
 
-        return client, False  # lambda: client.shutdown(timeout=0)
+            client.close()
+            local_cluster.close()
 
-    if isinstance(client_or_address, str) and client_or_address.lower() == 'local':
-        client = Client(LocalCluster())
-
-        print(repr(client))
-
-        return client, False  # lambda: client.shutdown(timeout=0)
+        return client, shutdown_client_and_local_cluster
 
     elif isinstance(client_or_address, str) and client_or_address.lower() != 'local':
         client = Client(client_or_address)
 
-        print(repr(client))
+        def shutdown_client(verbose=False):
+            if verbose:
+                print('shutting down Client')
 
-        return client, True  # lambda: client.shutdown(timeout=0)
+            client.shutdown()
+
+        return client, shutdown_client
 
     elif isinstance(client_or_address, Client):
-        print(repr(client_or_address))
 
-        return client_or_address, True  # lambda: None
+        def shutdown_dummy(_=None):
+            return None
+
+        return client_or_address, shutdown_dummy
 
     else:
         raise ValueError("Invalid client specified {}".format(str(client_or_address)))
@@ -163,7 +185,7 @@ def _prepare_input(expression_data,
     :param expression_data: one of:
                             * a pandas DataFrame (rows=observations, columns=genes)
                             * a dense 2D numpy.ndarray
-                            * a sparse scipy.sparce.csc_matrix
+                            * a sparse scipy.sparse.csc_matrix
     :param gene_names: optional list of gene names (strings).
                        Required when a (dense or sparse) matrix is passed as 'expression_data' instead of a DataFrame.
     :param tf_names: optional list of transcription factors. If None or 'all', the list of gene_names will be used.
