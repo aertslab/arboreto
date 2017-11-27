@@ -125,19 +125,27 @@ def _prepare_client(client_or_address):
     if client_or_address is None:
         client = Client(LocalCluster())
 
-        return client, lambda: client.shutdown()
+        print(repr(client))
+
+        return client, lambda: client.shutdown(timeout=0)
 
     if isinstance(client_or_address, str) and client_or_address.lower() == 'local':
         client = Client(LocalCluster())
 
-        return client, lambda: client.shutdown()
+        print(repr(client))
+
+        return client, lambda: client.shutdown(timeout=0)
 
     elif isinstance(client_or_address, str) and client_or_address.lower() != 'local':
         client = Client(client_or_address)
 
-        return client, lambda: client.shutdown()
+        print(repr(client))
+
+        return client, lambda: client.shutdown(timeout=0)
 
     elif isinstance(client_or_address, Client):
+        print(repr(client_or_address))
+
         return client_or_address, lambda: None
 
     else:
