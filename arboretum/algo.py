@@ -92,7 +92,8 @@ def diy(expression_data,
     :return: a pandas DataFrame['TF', 'target', 'importance'] representing the inferred gene regulatory links.
     """
 
-    client_or_address, shutdown_callback = _prepare_client(client_or_address)
+    # client_or_address, shutdown_callback = _prepare_client(client_or_address)
+    client, is_distributed = _prepare_client(client_or_address)
 
     try:
         expression_matrix, gene_names, tf_names = _prepare_input(expression_data, gene_names, tf_names)
@@ -100,15 +101,16 @@ def diy(expression_data,
         graph = create_graph(expression_matrix,
                              gene_names,
                              tf_names,
-                             client=client_or_address,
+                             client=client if is_distributed else None,
                              regressor_type=regressor_type,
                              regressor_kwargs=regressor_kwargs,
                              limit=limit,
                              seed=seed)
 
-        return client_or_address.compute(graph, sync=True).sort_values(by='importance', ascending=False)
+        return client.compute(graph, sync=True).sort_values(by='importance', ascending=False)
     finally:
-        shutdown_callback()
+        if not is_distributed:
+            client.shutdown()
 
 
 def _prepare_client(client_or_address):
@@ -127,26 +129,26 @@ def _prepare_client(client_or_address):
 
         print(repr(client))
 
-        return client, lambda: client.shutdown(timeout=0)
+        return client, False  # lambda: client.shutdown(timeout=0)
 
     if isinstance(client_or_address, str) and client_or_address.lower() == 'local':
         client = Client(LocalCluster())
 
         print(repr(client))
 
-        return client, lambda: client.shutdown(timeout=0)
+        return client, False  # lambda: client.shutdown(timeout=0)
 
     elif isinstance(client_or_address, str) and client_or_address.lower() != 'local':
         client = Client(client_or_address)
 
         print(repr(client))
 
-        return client, lambda: client.shutdown(timeout=0)
+        return client, True  # lambda: client.shutdown(timeout=0)
 
     elif isinstance(client_or_address, Client):
         print(repr(client_or_address))
 
-        return client_or_address, lambda: None
+        return client_or_address, True  # lambda: None
 
     else:
         raise ValueError("Invalid client specified {}".format(str(client_or_address)))
