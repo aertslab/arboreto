@@ -12,7 +12,8 @@ def grnboost2(expression_data,
               tf_names='all',
               client_or_address='local',
               limit=None,
-              seed=None):
+              seed=None,
+              verbose=False):
     """
     Launch arboretum with [GRNBoost2] profile.
 
@@ -29,11 +30,13 @@ def grnboost2(expression_data,
            * a Client instance: the specified Client instance will be used to perform the computation.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default None.
+    :param verbose: print info.
     :return: a pandas DataFrame['TF', 'target', 'importance'] representing the inferred gene regulatory links.
     """
 
     return diy(expression_data=expression_data, regressor_type='GBM', regressor_kwargs=SGBM_KWARGS,
-               gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address, limit=limit, seed=seed)
+               gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address,
+               limit=limit, seed=seed, verbose=verbose)
 
 
 def genie3(expression_data,
@@ -41,7 +44,8 @@ def genie3(expression_data,
            tf_names='all',
            client_or_address='local',
            limit=None,
-           seed=None):
+           seed=None,
+           verbose=False):
     """
     Launch arboretum with [GENIE3] profile.
 
@@ -58,11 +62,13 @@ def genie3(expression_data,
            * a Client instance: the specified Client instance will be used to perform the computation.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default None.
+    :param verbose: print info.
     :return: a pandas DataFrame['TF', 'target', 'importance'] representing the inferred gene regulatory links.
     """
 
     return diy(expression_data=expression_data, regressor_type='RF', regressor_kwargs=RF_KWARGS,
-               gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address, limit=limit, seed=seed)
+               gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address,
+               limit=limit, seed=seed, verbose=verbose)
 
 
 def diy(expression_data,
@@ -98,8 +104,8 @@ def diy(expression_data,
 
     client, shutdown_callback = _prepare_client(client_or_address)
 
-    if verbose:
-        print(client._repr_html_())
+    # if verbose:
+    #     print(client._repr_html_())
 
     try:
         if verbose:
