@@ -2,7 +2,9 @@
 Tests for arboretum.algo.
 """
 
-from unittest import TestCase, skip
+from unittest import TestCase
+import numpy as np
+import pandas as pd
 
 from scipy.sparse import csc_matrix
 from distributed import Client, LocalCluster
