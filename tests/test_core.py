@@ -9,6 +9,7 @@ from unittest import TestCase, skip
 import dask
 from distributed import Client, LocalCluster
 
+from arboretum.core import *
 from arboretum.utils import *
 from tests import resources_path
 
@@ -16,6 +17,17 @@ net1_ex_path = join(resources_path, 'dream5/net1/net1_expression_data.tsv')
 net1_tf_path = join(resources_path, 'dream5/net1/net1_transcription_factors.tsv')
 
 net1_shape = (805, 1643)
+
+
+def load_expression_matrix(path, delimiter='\t'):
+    return np.genfromtxt(path, delimiter=delimiter, skip_header=1)
+
+
+def load_gene_names(path, delimiter='\t'):
+    with open(path) as file:
+        gene_names = [gene.strip() for gene in file.readline().split(delimiter)]
+
+    return gene_names
 
 net1_ex_matrix = load_expression_matrix(net1_ex_path)
 net1_gene_names = load_gene_names(net1_ex_path)

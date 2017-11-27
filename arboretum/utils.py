@@ -1,5 +1,5 @@
 """
-Utility functions for reading DREAM5 data.
+Utility functions.
 """
 
 
