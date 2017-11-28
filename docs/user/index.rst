@@ -11,6 +11,9 @@ User Guide
 .. _`distributed scheduler`: http://distributed.readthedocs.io/en/latest/setup.html
 .. _client: http://distributed.readthedocs.io/en/latest/client.html
 .. _localcluster: http://distributed.readthedocs.io/en/latest/local-cluster.html?highlight=localcluster#distributed.deploy.local.LocalCluster
+.. _`dask.distributed`: http://distributed.readthedocs.io
+.. _`set up`: http://distributed.readthedocs.io/en/latest/setup.html
+.. _`network setup documentation`: http://distributed.readthedocs.io/en/latest/setup.html
 
 Modules overview
 ----------------
@@ -129,7 +132,7 @@ In this case, the gene names must be specified explicitly.
 .. caution::
 
     You must specify the gene names in the same order as their corresponding
-    columns of the numpy_ matrix. **Getting this right is the user's responsibility.**
+    columns of the Numpy_ matrix. **Getting this right is the user's responsibility.**
 
 .. code-block:: python
 
@@ -161,8 +164,9 @@ In this case, the gene names must be specified explicitly.
 Running with a custom dask Client
 ---------------------------------
 
-When the user doesn't specify a dask distributed Client_ explicitly, Arboretum
-will create a LocalCluster_ and a Client_ pointing to it.
+Arboretum uses `Dask.distributed`_ to parallelize its workloads. When the user
+doesn't specify a dask distributed Client_ explicitly, Arboretum will create a
+LocalCluster_ and a Client_ pointing to it.
 
 Alternatively, you can create and configure your own Client_ instance and pass
 it on to Arboretum. Situations where this is useful include:
@@ -207,44 +211,53 @@ and pass it to the different inference steps.
                             client=custom_client,  # we specify the custom client
                             seed=777)
 
-    # close the LocalCluster and Client after use
-    local_cluster.close()
+    # close the Client and LocalCluster after use
     client.close()
+    local_cluster.close()
 
 
-Running with a dask distributed scheduler
+Running with a Dask distributed scheduler
 -----------------------------------------
 
-.. _`dask.distributed`: http://distributed.readthedocs.io
-.. _`set up`: http://distributed.readthedocs.io/en/latest/setup.html
-.. _`network setup documentation`: http://distributed.readthedocs.io/en/latest/setup.html
-
-Arboretum uses `Dask.distributed`_ to parallelize its workloads.
-
-In local mode, the user does not need to know the details of the underlying
-computation framework. However, in distributed mode, some effort by the user or
-a systems administrator is required to `set up`_ a dask.distributed ``scheduler``
-and some ``workers``.
+Arboretum was designed to run gene regulatory network inference in a distributed
+setting. To run distributedly, we specify a Client_ that is connected to a Dask `distributed scheduler`_.
 
 .. tip::
 
-    Please refer to the Dask.distributed `network setup documentation`_.
+    Please refer to the Dask distributed `network setup documentation`_.
 
-Arboretum runs in local mode by default, spinning up different python processes
-to execute the workload in parallel on the local machine. Thanks to the very
-parallelizable nature of the network inference algorithms, we can take the parallelism
-a step further by assigning pieces of the workload to different compute nodes.
+Following diagram illustrates a possible topology of a Dask distributed cluster.
 
-In a distributed setting, Arboretum supports connecting to a dask distributed
-scheduler instead of creating a local scheduler that is used only for the current
-network inference.
 
-Connecting to a distributed scheduler is possible by:
+.. parsed-literal::
 
-#. specifying the IP/port of a running scheduler:
+                        .=[node_2]==============.          .=[node_3]=========.
+   .=[node_1]======.    |  .--------------.     |          |  .------------.  |
+   |  .--------.   |    |  | Dask         |<----+----------+--| 10 workers |  |
+   |  | Client |---+----+->| distributed  |<----+-.        |  '------------'  |
+   |  '--------'   |    |  | scheduler    |<-.  |  \       '=================='
+   '==============='    |  '--------------'  |  |   \
+                        |                    |  |    \     .=[node_4]=========.
+                        |  .------------.    |  |     \    |  .------------.  |
+                        |  | 10 workers |----'  |      '---+--| 10 workers |  |
+                        |  '------------'       |          |  '------------'  |
+                        '======================='          '=================='
 
-    example
 
-#. passing a Dask.distributed client instance:
+!! Work In Progress !!
+
+.. In local mode, the user does not need to know the details of the underlying
+ computation framework. However, in distributed mode, some effort by the user or
+ a systems administrator is required to `set up`_ a dask.distributed ``scheduler``
+ and some ``workers``.
+
+
+ Connecting to a distributed scheduler is possible by:
+
+ #. specifying the IP/port of a running scheduler:
+
+     example
+
+ #. passing a Dask.distributed client instance:
 
     example
