@@ -100,12 +100,9 @@ def diy(expression_data,
     :return: a pandas DataFrame['TF', 'target', 'importance'] representing the inferred gene regulatory links.
     """
     if verbose:
-        print('preparing distributed client')
+        print('preparing dask client')
 
     client, shutdown_callback = _prepare_client(client_or_address)
-
-    # if verbose:
-    #     print(client._repr_html_())
 
     try:
         if verbose:
@@ -126,9 +123,12 @@ def diy(expression_data,
                              seed=seed)
 
         if verbose:
-            print('computing the dask graph')
+            print('computing dask graph')
 
-        return client.compute(graph, sync=True).sort_values(by='importance', ascending=False)
+        return client \
+            .compute(graph, sync=True) \
+            .sort_values(by='importance', ascending=False)
+
     finally:
         shutdown_callback(verbose)
 
@@ -151,32 +151,35 @@ def _prepare_client(client_or_address):
         local_cluster = LocalCluster()
         client = Client(local_cluster)
 
-        def shutdown_client_and_local_cluster(verbose=False):
+        def close_client_and_local_cluster(verbose=False):
             if verbose:
-                print('shutting down LocalCluster and Client')
+                print('shutting down client and local cluster')
 
             client.close()
             local_cluster.close()
 
-        return client, shutdown_client_and_local_cluster
+        return client, close_client_and_local_cluster
 
     elif isinstance(client_or_address, str) and client_or_address.lower() != 'local':
         client = Client(client_or_address)
 
-        def shutdown_client(verbose=False):
+        def close_client(verbose=False):
             if verbose:
-                print('shutting down Client')
+                print('shutting down client')
 
-            client.shutdown()
+            client.close()
 
-        return client, shutdown_client
+        return client, close_client
 
     elif isinstance(client_or_address, Client):
 
-        def shutdown_dummy(_=None):
+        def close_dummy(verbose=False):
+            if verbose:
+                print('not shutting down client, client was created externally')
+
             return None
 
-        return client_or_address, shutdown_dummy
+        return client_or_address, close_dummy
 
     else:
         raise ValueError("Invalid client specified {}".format(str(client_or_address)))
