@@ -14,6 +14,7 @@ User Guide
 .. _`dask.distributed`: http://distributed.readthedocs.io
 .. _`set up`: http://distributed.readthedocs.io/en/latest/setup.html
 .. _`network setup documentation`: http://distributed.readthedocs.io/en/latest/setup.html
+.. _jupyter: http://jupyter.org/
 
 Modules overview
 ----------------
@@ -158,10 +159,10 @@ In this case, the gene names must be specified explicitly.
     tf_names = load_tf_names(<tf_path>)
 
     network = grnboost2(expression_data=ex_matrix,
-                        gene_names=gene_names,  # we specify the gene_names
+                        gene_names=gene_names,  # specify the gene_names
                         tf_names=tf_names)
 
-Running with a custom dask Client
+Running with a custom Dask Client
 ---------------------------------
 
 Arboretum uses `Dask.distributed`_ to parallelize its workloads. When the user
@@ -181,8 +182,8 @@ and pass it to the different inference steps.
 
 .. code-block:: python
 
-    # Running with a custom Client
-    # ----------------------------
+    # Running with a custom Dask Client
+    # ---------------------------------
 
     import pandas as pd
 
@@ -203,12 +204,12 @@ and pass it to the different inference steps.
     # run GRN inference multiple times
     network_666 = grnboost2(expression_data=ex_matrix,
                             tf_names=tf_names,
-                            client=custom_client,  # we specify the custom client
+                            client=custom_client,  # specify the custom client
                             seed=666)
 
     network_777 = grnboost2(expression_data=ex_matrix,
                             tf_names=tf_names,
-                            client=custom_client,  # we specify the custom client
+                            client=custom_client,  # specify the custom client
                             seed=777)
 
     # close the Client and LocalCluster after use
@@ -222,29 +223,56 @@ Running with a Dask distributed scheduler
 Arboretum was designed to run gene regulatory network inference in a distributed
 setting. To run distributedly, we specify a Client_ that is connected to a Dask `distributed scheduler`_.
 
-.. tip::
-
-    Please refer to the Dask distributed `network setup documentation`_.
-
 Following diagram illustrates a possible topology of a Dask distributed cluster.
+We have 4 compute nodes:
 
+* ``node_1`` runs a Python script, console or a Jupyter_ notebook server, a Client_ instance is configured with the TCP address of the distributed scheduler, running on ``node_2``
+* ``node_2`` runs a distributed scheduler and 10 workers pointing to the scheduler
+* ``node_3`` runs 10 distributed workers pointing to the scheduler
+* ``node_4`` runs 10 distributed workers pointing to the scheduler
 
 .. parsed-literal::
 
                         .=[node_2]==============.          .=[node_3]=========.
    .=[node_1]======.    |  .--------------.     |          |  .------------.  |
    |  .--------.   |    |  | Dask         |<----+----------+--| 10 workers |  |
-   |  | Client |---+----+->| distributed  |<----+-.        |  '------------'  |
-   |  '--------'   |    |  | scheduler    |<-.  |  \       '=================='
-   '==============='    |  '--------------'  |  |   \
-                        |                    |  |    \     .=[node_4]=========.
-                        |  .------------.    |  |     \    |  .------------.  |
-                        |  | 10 workers |----'  |      '---+--| 10 workers |  |
+   |  | Client |---+----+->| distributed  |<----+--.       |  '------------'  |
+   |  '--------'   |    |  | scheduler    |<-.  |   \      '=================='
+   '==============='    |  '--------------'  |  |    \
+                        |                    |  |     \    .=[node_4]=========.
+                        |  .------------.    |  |      \   |  .------------.  |
+                        |  | 10 workers |----'  |       '--+--| 10 workers |  |
                         |  '------------'       |          |  '------------'  |
                         '======================='          '=================='
 
+.. tip::
 
-!! Work In Progress !!
+    Please refer to the Dask distributed `network setup documentation`_.
+
+With a small modification to the code, we can infer a regulatory network using all
+workers connected to the `distributed scheduler`_.
+
+.. code-block:: python
+
+    # Running with a Dask distributed scheduler
+    # -----------------------------------------
+
+    import pandas as pd
+
+    from arboretum.utils import load_tf_names
+    from arboretum.algo import grnboost2
+    from distributed import Client
+
+    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+    tf_names = load_tf_names(<tf_path>)
+
+    scheduler_address = 'tcp://10.118.224.134:8786'  # example address of the remote scheduler
+    cluster_client = Client(scheduler_address)       # create a custom Client
+
+    network = grnboost2(expression_data=ex_matrix,
+                        tf_names=tf_names,
+                        client=cluster_client)  # specify the Client connected to the remote scheduler
+
 
 .. In local mode, the user does not need to know the details of the underlying
  computation framework. However, in distributed mode, some effort by the user or
