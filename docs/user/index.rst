@@ -136,6 +136,7 @@ In this case, the gene names must be specified explicitly.
     columns of the Numpy_ matrix. **Getting this right is the user's responsibility.**
 
 .. code-block:: python
+    :emphasize-lines: 23
 
     # Expression matrix as a Numpy ndarray
     # ------------------------------------
@@ -181,6 +182,7 @@ multiple times, with different initialization seed values. We create one Client_
 and pass it to the different inference steps.
 
 .. code-block:: python
+    :emphasize-lines: 11, 12, 13, 14, 23, 28
 
     # Running with a custom Dask Client
     # ---------------------------------
@@ -221,15 +223,14 @@ Running with a Dask distributed scheduler
 -----------------------------------------
 
 Arboretum was designed to run gene regulatory network inference in a distributed
-setting. To run distributedly, we specify a Client_ that is connected to a Dask `distributed scheduler`_.
+setting. In distributed mode, some effort by the user or a systems administrator
+is required to `set up`_ a dask.distributed ``scheduler`` and some ``workers``.
+
+.. tip::
+
+    Please refer to the Dask distributed `network setup documentation`_.
 
 Following diagram illustrates a possible topology of a Dask distributed cluster.
-We have 4 compute nodes:
-
-* ``node_1`` runs a Python script, console or a Jupyter_ notebook server, a Client_ instance is configured with the TCP address of the distributed scheduler, running on ``node_2``
-* ``node_2`` runs a distributed scheduler and 10 workers pointing to the scheduler
-* ``node_3`` runs 10 distributed workers pointing to the scheduler
-* ``node_4`` runs 10 distributed workers pointing to the scheduler
 
 .. parsed-literal::
 
@@ -245,14 +246,18 @@ We have 4 compute nodes:
                         |  '------------'       |          |  '------------'  |
                         '======================='          '=================='
 
-.. tip::
-
-    Please refer to the Dask distributed `network setup documentation`_.
+* ``node_1`` runs a Python script, console or a Jupyter_ notebook server, a Client_ instance is configured with the TCP address of the distributed scheduler, running on ``node_2``
+* ``node_2`` runs a distributed scheduler and 10 workers pointing to the scheduler
+* ``node_3`` runs 10 distributed workers pointing to the scheduler
+* ``node_4`` runs 10 distributed workers pointing to the scheduler
 
 With a small modification to the code, we can infer a regulatory network using all
-workers connected to the `distributed scheduler`_.
+workers connected to the `distributed scheduler`_. We specify a Client_ that is
+connected to the Dask `distributed scheduler`_ and pass it as an argument to the
+inference function.
 
 .. code-block:: python
+    :emphasize-lines: 13, 14, 18
 
     # Running with a Dask distributed scheduler
     # -----------------------------------------
