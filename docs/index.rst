@@ -10,6 +10,10 @@
     :alt: Documentation Status
     :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
 
+.. image:: https://img.shields.io/badge/pypi-0.1.2-blue.svg
+    :alt: PyPI package
+    :target: https://pypi.python.org/pypi?:action=display&name=arboretum&version=0.1.2
+
 ----
 
 .. _arboretum: https://github.com/tmoerman/arboretum
@@ -79,7 +83,7 @@ Usage Example
     # infer the gene regulatory network
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names)
-                        
+
     network.head()
 
 ====  ======  ==========
