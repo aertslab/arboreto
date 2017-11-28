@@ -48,7 +48,7 @@ in high-throughput gene profiling technology.
     * Browse examples_
     * Report an issue_
     * Source code at Github_
-    * Python package at PyPI_
+    * Releases at PyPI_
 
 The *arboretum* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
 exemplified by GENIE3_ [1]_ on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
