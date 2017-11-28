@@ -23,7 +23,7 @@ Installation Guide
     This avoids complexities in ensuring that libraries like numpy_ and scipy_
     link against an optimized implementation of linear algebra routines.
 
-Install Using Pip
+Install using pip
 -----------------
 
 .. _pypi: https://pypi.python.org/pypi/arboretum/
@@ -60,12 +60,12 @@ Using pip_, installing the arboretum package is straightforward:
         * dask
         * distributed
 
-Install Using Conda
+Install using conda
 -------------------
 
     TODO
 
-Install from Source
+Install from source
 -------------------
 
     TODO

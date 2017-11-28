@@ -17,7 +17,7 @@
 .. _notebooks: https://github.com/tmoerman/arboretum/tree/master/notebooks
 .. _issue: https://github.com/tmoerman/arboretum/issues/new
 .. _github: https://github.com/tmoerman/arboretum
-.. _pypi:
+.. _pypi: https://pypi.python.org/pypi/arboretum/
 
 .. _dask: https://dask.pydata.org/en/latest/
 .. _`dask distributed`: https://distributed.readthedocs.io/en/latest/
@@ -29,7 +29,7 @@
 .. _`early-stopping`: https://en.wikipedia.org/wiki/Early_stopping
 
 .. _pip: https://pip.pypa.io/en/stable/installing/
-.. _install: user/installation.html
+.. _installation: user/installation.html
 .. _examples: user/examples.html
 .. _`user guide`: user/index.html
 .. _`GRN inference algorithms`: user/algorithms.html
@@ -39,55 +39,82 @@ in high-throughput gene profiling technology.
 
 .. sidebar:: **Quick Start**
 
-    .. code-block:: bash
-
-        $ pip install arboretum
-
-    * Read the `user guide`_.
-    * Browse examples_.
-    * Report an issue_.
-
-    |
-
-    Source code at github_.
+    * `Installation`_
+    * `User guide`_
+    * Browse examples_
+    * Report an issue_
+    * Source code at Github_
+    * Python package at PyPI_
 
 The *arboretum* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
-exemplified by GENIE3_ [1] on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
+exemplified by GENIE3_ [1]_ on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
 a series of steps, one for each target gene in the network, where the most important candidates from a set of regulators are determined from a regression
 model to predict a target gene's expression profile.
 
 Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboretum,
-we specify the parallelizable computation as a dask_ graph [2], a data structure that represents the task schedule of a computation. A dask scheduler assigns the
+we specify the parallelizable computation as a dask_ graph [2]_, a data structure that represents the task schedule of a computation. A dask scheduler assigns the
 tasks in a dask graph to the available computational resources. Arboretum uses the `dask distributed`_ scheduler to
 spread out the computational tasks over multiple processes running on one or multiple machines.
 
 Arboretum currently supports 2 `GRN inference algorithms`_:
 
-1. **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ (SGBM) [3] regression with `early-stopping`_ regularization.
+1. **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ [3]_ (SGBM) regression with `early-stopping`_ regularization.
 
 2. **GENIE3**: the classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
 
-**References**
+Usage Example
+=============
 
-1. Huynh-Thu VA, Irrthum A, Wehenkel L, Geurts P (2010) Inferring Regulatory Networks from Expression Data Using Tree-Based Methods. PLoS ONE
-2. Rocklin, M. (2015). Dask: parallel computation with blocked algorithms and task scheduling. In Proceedings of the 14th Python in Science Conference (pp. 130-136).
-3. Friedman, J. H. (2002). Stochastic gradient boosting. Computational Statistics & Data Analysis, 38(4), 367-378.
-4. Marbach, D., Costello, J. C., Kuffner, R., Vega, N. M., Prill, R. J., Camacho, D. M., ... & Dream5 Consortium. (2012). Wisdom of crowds for robust gene network inference. Nature methods, 9(8), 796-804.
-
-Example
-=======
+1. import python modules
 
 .. code-block:: python
 
-    import numpy as np
     import pandas as pd
+
+    from arboretum.utils import load_tf_names
+    from arboretum.algo import grnboost2
+
+2. load the data
+
+.. code-block:: python
+
+    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+    tf_names = load_tf_names(<tf_path>)
+
+3. infer the gene regulatory network
+
+.. code-block:: python
+
+    network = grnboost2(expression_data=ex_matrix,
+                        tf_names=tf_names)
+    network.head()
+
+====  ======  ==========
+TF    target  importance
+====  ======  ==========
+G109  G1406   151.648784
+G16   G1440   136.741815
+G188  G938    124.707570
+G10   G1312   124.195566
+G48   G1419   121.488200
+====  ======  ==========
 
 Check out more examples_.
 
 License
 =======
 
-BSD 3-Clause License
+.. _license: https://github.com/tmoerman/arboretum/blob/master/LICENSE.txt
+
+BSD 3-Clause License_
+
+References
+==========
+
+.. [1] Huynh-Thu VA, Irrthum A, Wehenkel L, Geurts P (2010) Inferring Regulatory Networks from Expression Data Using Tree-Based Methods. PLoS ONE
+.. [2] Rocklin, M. (2015). Dask: parallel computation with blocked algorithms and task scheduling. In Proceedings of the 14th Python in Science Conference (pp. 130-136).
+.. [3] Friedman, J. H. (2002). Stochastic gradient boosting. Computational Statistics & Data Analysis, 38(4), 367-378.
+.. [4] Marbach, D., Costello, J. C., Kuffner, R., Vega, N. M., Prill, R. J., Camacho, D. M., ... & Dream5 Consortium. (2012). Wisdom of crowds for robust gene network inference. Nature methods, 9(8), 796-804.
 
 .. toctree::
     :maxdepth: 2
@@ -98,3 +125,4 @@ BSD 3-Clause License
     user/examples
     user/algorithms
     user/concept
+    user/troubleshooting
