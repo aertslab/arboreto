@@ -90,6 +90,7 @@ specifying the ``expression_data`` as a DataFrame_.
 .. code-block:: python
 
     # Expression matrix as a Pandas DataFrame
+    # ---------------------------------------
 
     import pandas as pd
 
@@ -133,6 +134,7 @@ In this case, the gene names must be specified explicitly.
 .. code-block:: python
 
     # Expression matrix as a Numpy ndarray
+    # ------------------------------------
 
     import numpy as np
 
@@ -153,28 +155,65 @@ In this case, the gene names must be specified explicitly.
     tf_names = load_tf_names(<tf_path>)
 
     network = grnboost2(expression_data=ex_matrix,
-                        gene_names=gene_names,  # we explicitly specify the gene_names
+                        gene_names=gene_names,  # we specify the gene_names
                         tf_names=tf_names)
 
-Running with a custom LocalCluster
-----------------------------------
+Running with a custom dask Client
+---------------------------------
 
 When the user doesn't specify a dask distributed Client_ explicitly, Arboretum
 will create a LocalCluster_ and a Client_ pointing to it.
 
-Alternatively, you can create and configure your own LocalCluster_ and Client_
-and pass these on to Arboretum. Example situations where this is useful:
+Alternatively, you can create and configure your own Client_ instance and pass
+it on to Arboretum. Situations where this is useful include:
 
 * inferring multiple networks from different datasets
-* inferring multiple networks, using different parameters, from the same dataset
-* the user requires custom configuration for the
+* inferring multiple networks using different parameters from the same dataset
+* the user requires custom configuration for the LocalCluster (memory limit, nr of processes, etc.)
+
+Following snippet illustrates running the gene regulatory network inference
+multiple times, with different initialization seed values. We create one Client_
+and pass it to the different inference steps.
 
 .. code-block:: python
 
+    # Running with a custom Client
+    # ----------------------------
+
+    import pandas as pd
+
+    from arboretum.utils import load_tf_names
+    from arboretum.algo import grnboost2
+    from distributed import LocalCluster, Client
+
+    # create custom LocalCluster and Client instances
+    local_cluster = LocalCluster(n_workers=10,
+                                 threads_per_worker=1,
+                                 memory_limit=8e9)
+    custom_client = Client(local_cluster)
+
+    # load the data
+    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+    tf_names = load_tf_names(<tf_path>)
+
+    # run GRN inference multiple times
+    network_666 = grnboost2(expression_data=ex_matrix,
+                            tf_names=tf_names,
+                            client=custom_client,  # we specify the custom client
+                            seed=666)
+
+    network_777 = grnboost2(expression_data=ex_matrix,
+                            tf_names=tf_names,
+                            client=custom_client,  # we specify the custom client
+                            seed=777)
+
+    # close the LocalCluster and Client after use
+    local_cluster.close()
+    client.close()
 
 
-Running with a distributed scheduler
-------------------------------------
+Running with a dask distributed scheduler
+-----------------------------------------
 
 .. _`dask.distributed`: http://distributed.readthedocs.io
 .. _`set up`: http://distributed.readthedocs.io/en/latest/setup.html
