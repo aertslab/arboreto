@@ -65,28 +65,21 @@ Arboretum currently supports 2 `GRN inference algorithms`_:
 Usage Example
 =============
 
-1. import python modules
-
 .. code-block:: python
 
+    # import python modules
     import pandas as pd
-
     from arboretum.utils import load_tf_names
     from arboretum.algo import grnboost2
 
-2. load the data
-
-.. code-block:: python
-
+    # load the data
     ex_matrix = pd.read_csv(<ex_path>, sep='\t')
     tf_names = load_tf_names(<tf_path>)
 
-3. infer the gene regulatory network
-
-.. code-block:: python
-
+    # infer the gene regulatory network
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names)
+                        
     network.head()
 
 ====  ======  ==========
