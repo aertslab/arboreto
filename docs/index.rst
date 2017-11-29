@@ -1,4 +1,4 @@
-.. image:: ../img/arboretum.png
+.. image:: https://github.com/tmoerman/arboretum/blob/master/img/arboretum.png?raw=true
     :alt: arboretum
     :align: left
 
@@ -45,7 +45,6 @@ in high-throughput gene profiling technology.
 
     * `Installation`_
     * `User guide`_
-    * Browse examples_
     * Report an issue_
     * Source code at Github_
     * Releases at PyPI_
