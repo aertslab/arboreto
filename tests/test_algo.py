@@ -14,7 +14,6 @@ from arboretum.algo import _prepare_input, _prepare_client
 from arboretum.algo import grnboost2, genie3
 from arboretum.utils import *
 from tests import resources_path
-from time import sleep
 
 
 class PrepareClientTest(TestCase):

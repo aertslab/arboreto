@@ -4,6 +4,8 @@
 .. _`web interface`: http://distributed.readthedocs.io/en/latest/web.html
 .. _`GradientBoostingRegressor API`: http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html#sklearn.ensemble.GradientBoostingRegressor.fit
 .. _`scikit-learn`: http://scikit-learn.org
+.. _pandas: https://pandas.pydata.org/
+.. _numpy: http://www.numpy.org/
 
 .. contents:: Page contents
 
@@ -65,9 +67,9 @@ genes and the columns represent the observations.
 
 In order to maintain an API that is as lean is possible, Arboretum adopts
 the scikit-learn convention (rows=observations, columns=features). This means that
-the user bears the responsibility for providing the data in the right shape.
+the user is responsible for providing the data in the right shape.
 
-Fortunately, the Pandas and Numpy libraries feature all the necessary functions
+Fortunately, the Pandas_ and Numpy_ libraries feature all the necessary functions
 to preprocess your data.
 
 Troubleshooting
