@@ -2,7 +2,7 @@
 Tests for arboretum.algo.
 """
 
-from unittest import TestCase
+from unittest import TestCase, skip
 import numpy as np
 import pandas as pd
 
@@ -14,6 +14,7 @@ from arboretum.algo import _prepare_input, _prepare_client
 from arboretum.algo import grnboost2, genie3
 from arboretum.utils import *
 from tests import resources_path
+from time import sleep
 
 
 class PrepareClientTest(TestCase):
@@ -33,15 +34,17 @@ class PrepareClientTest(TestCase):
         shutdown_callback()
 
     def test_client(self):
-        lc = LocalCluster()
+        lc = LocalCluster(diagnostics_port=None)
         passed = Client(lc)
 
         client, shutdown_callback = _prepare_client(passed)
 
-        self.assertEqual(client, passed)
+        self.assertEquals(client, passed)
 
         shutdown_callback()
         lc.close()
+
+        self.assertEquals(lc.status, 'closed')
 
     def test_address(self):
         with self.assertRaises(Exception) as context:

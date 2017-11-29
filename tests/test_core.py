@@ -184,7 +184,7 @@ class ComputeGraphTests(TestCase):
         self.assertEquals(len(self.test_range), len(meta_df['target'].unique()))
 
     def test_with_distributed_client(self):
-        lc = LocalCluster()
+        lc = LocalCluster(diagnostics_port=None)
         client = Client(lc)
 
         graph = create_graph(net1_ex_matrix,
@@ -199,7 +199,7 @@ class ComputeGraphTests(TestCase):
 
         self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
 
-        client.shutdown()
+        client.close()
         lc.close()
 
 
