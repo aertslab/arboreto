@@ -11,9 +11,9 @@
     :alt: Documentation Status
     :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/badge/pypi-0.1.2-blue.svg
+.. image:: https://img.shields.io/badge/pypi-0.1.3-blue.svg
     :alt: PyPI package
-    :target: https://pypi.python.org/pypi?:action=display&name=arboretum&version=0.1.2
+    :target: https://pypi.python.org/pypi?:action=display&name=arboretum&version=0.1.3
 
 ----
 
