@@ -13,14 +13,14 @@ Installation Guide
     or Miniconda_ distribution and install arboretum's dependencies using the
     conda_ package manager.
 
-    - numpy
-    - scipy
+    - NumPy
+    - SciPy
     - scikit-learn
     - pandas
     - dask
     - distributed
 
-    This avoids complexities in ensuring that libraries like numpy_ and scipy_
+    This avoids complexities in ensuring that libraries like NumPy_ and SciPy_
     link against an optimized implementation of linear algebra routines.
 
 Install using pip

@@ -15,6 +15,8 @@ User Guide
 .. _`set up`: http://distributed.readthedocs.io/en/latest/setup.html
 .. _`network setup documentation`: http://distributed.readthedocs.io/en/latest/setup.html
 .. _jupyter: http://jupyter.org/
+.. _`scikit-learn`: http://scikit-learn.org/
+
 
 Modules overview
 ----------------
@@ -38,10 +40,23 @@ Arboretum consists of multiple python modules:
 
 * Contains small utility functions.
 
-.. Dependencies Overview
- ---------------------
+Dependencies Overview
+---------------------
 
- Arboretum uses well-established libraries from the Python ecosystem.
+Arboretum uses well-established libraries from the Python ecosystem. Arboretum
+avoids being a proverbial "batteries-included" library, as such an approach often
+entails unnecessary complexity and maintenance. Arboretum aims at doing only one
+thing, and doing it well.
+
+Concretely, the user will be exposed to one or more of following dependencies:
+
+* Pandas_ or NumPy_: the user is expected to provide the input data in an expected
+format. Pandas_ and NumPy_ are well equipped with functions for data preprocessing.
+* Dask.distributed_: to run Arboretum on a cluster, the user is responsible for
+setting up a network of a scheduler and workers.
+* scikit-learn_: relevant for advanced users only. Arboretum can run "DIY" inference
+where the user provides their own parameters for the Random Forest or Gradient Boosting
+regressors.
 
 
 Input / Output
@@ -92,9 +107,7 @@ In the following code snippet, we launch network inference with grnboost2_ by
 specifying the ``expression_data`` as a DataFrame_.
 
 .. code-block:: python
-
-    # Expression matrix as a Pandas DataFrame
-    # ---------------------------------------
+    :caption: *Expression matrix as a Pandas DataFrame*
 
     import pandas as pd
 
@@ -110,11 +123,12 @@ specifying the ``expression_data`` as a DataFrame_.
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names)
 
-Expression matrix as a Numpy ``ndarray``
+Expression matrix as a NumPy ``ndarray``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Arboretum also supports specifying the expression matrix as a Numpy_ ndarray_ (matrix).
-In this case, the gene names must be specified explicitly.
+Arboretum also supports specifying the expression matrix as a Numpy_ ndarray_
+(in our case: a 2-dimensional matrix). In this case, the gene names must be
+specified explicitly.
 
 .. parsed-literal::
 
@@ -133,13 +147,11 @@ In this case, the gene names must be specified explicitly.
 .. caution::
 
     You must specify the gene names in the same order as their corresponding
-    columns of the Numpy_ matrix. **Getting this right is the user's responsibility.**
+    columns of the NumPy_ matrix. **Getting this right is the user's responsibility.**
 
 .. code-block:: python
     :emphasize-lines: 23
-
-    # Expression matrix as a Numpy ndarray
-    # ------------------------------------
+    :caption: *Expression matrix as a NumPy ndarray*
 
     import numpy as np
 
@@ -183,9 +195,7 @@ and pass it to the different inference steps.
 
 .. code-block:: python
     :emphasize-lines: 11, 12, 13, 14, 23, 28
-
-    # Running with a custom Dask Client
-    # ---------------------------------
+    :caption: *Running with a custom Dask Client*
 
     import pandas as pd
 
@@ -228,7 +238,8 @@ is required to `set up`_ a dask.distributed ``scheduler`` and some ``workers``.
 
 .. tip::
 
-    Please refer to the Dask distributed `network setup documentation`_.
+    Please refer to the Dask distributed `network setup documentation`_ for
+    instructions on how to set up a Dask distributed cluster.
 
 Following diagram illustrates a possible topology of a Dask distributed cluster.
 
@@ -258,9 +269,7 @@ inference function.
 
 .. code-block:: python
     :emphasize-lines: 13, 14, 18
-
-    # Running with a Dask distributed scheduler
-    # -----------------------------------------
+    :caption: *Running with a Dask distributed scheduler*
 
     import pandas as pd
 
@@ -276,7 +285,7 @@ inference function.
 
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names,
-                        client=cluster_client)  # specify the Client connected to the remote scheduler
+                        client=cluster_client)  # specify Client connected to the remote scheduler
 
 
 .. In local mode, the user does not need to know the details of the underlying
