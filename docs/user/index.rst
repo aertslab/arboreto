@@ -123,6 +123,8 @@ specifying the ``expression_data`` as a DataFrame_.
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names)
 
+    network.to_csv('output.tsv', sep='\t', index=False, header=False)
+
 Expression matrix as a NumPy ``ndarray``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -174,6 +176,8 @@ specified explicitly.
     network = grnboost2(expression_data=ex_matrix,
                         gene_names=gene_names,  # specify the gene_names
                         tf_names=tf_names)
+
+    network.to_csv('output.tsv', sep='\t', index=False, header=False)
 
 Running with a custom Dask Client
 ---------------------------------
@@ -228,6 +232,8 @@ and pass it to the different inference steps.
     client.close()
     local_cluster.close()
 
+    network_666.to_csv('output_666.tsv', sep='\t', index=False, header=False)
+    network_777.to_csv('output_777.tsv', sep='\t', index=False, header=False)
 
 Running with a Dask distributed scheduler
 -----------------------------------------
@@ -286,6 +292,8 @@ inference function.
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names,
                         client=cluster_client)  # specify Client connected to the remote scheduler
+
+    network.to_csv('output.tsv', sep='\t', index=False, header=False)
 
 
 .. In local mode, the user does not need to know the details of the underlying

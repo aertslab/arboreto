@@ -72,5 +72,13 @@ the user is responsible for providing the data in the right shape.
 Fortunately, the Pandas_ and Numpy_ libraries feature all the necessary functions
 to preprocess your data.
 
+Example: reading a transposed text file with Pandas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    df = pd.read_csv(zeisel_ex_path, index_col=0, sep='\t').T
+
+
 Troubleshooting
 ===============
