@@ -220,12 +220,12 @@ and pass it to the different inference steps.
     # run GRN inference multiple times
     network_666 = grnboost2(expression_data=ex_matrix,
                             tf_names=tf_names,
-                            client=custom_client,  # specify the custom client
+                            client_or_address=custom_client,  # specify the custom client
                             seed=666)
 
     network_777 = grnboost2(expression_data=ex_matrix,
                             tf_names=tf_names,
-                            client=custom_client,  # specify the custom client
+                            client_or_address=custom_client,  # specify the custom client
                             seed=777)
 
     # close the Client and LocalCluster after use
@@ -291,7 +291,7 @@ inference function.
 
     network = grnboost2(expression_data=ex_matrix,
                         tf_names=tf_names,
-                        client=cluster_client)  # specify Client connected to the remote scheduler
+                        client_or_address=cluster_client)  # specify Client connected to the remote scheduler
 
     network.to_csv('output.tsv', sep='\t', index=False, header=False)
 

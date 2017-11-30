@@ -77,7 +77,7 @@ Example: reading a transposed text file with Pandas
 
 .. code-block:: python
 
-    df = pd.read_csv(zeisel_ex_path, index_col=0, sep='\t').T
+    df = pd.read_csv(<ex_path>, index_col=0, sep='\t').T
 
 
 Troubleshooting
