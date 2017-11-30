@@ -152,7 +152,7 @@ specified explicitly.
     columns of the NumPy_ matrix. **Getting this right is the user's responsibility.**
 
 .. code-block:: python
-    :emphasize-lines: 23
+    :emphasize-lines: 20
     :caption: *Expression matrix as a NumPy ndarray*
 
     import numpy as np
@@ -198,7 +198,7 @@ multiple times, with different initialization seed values. We create one Client_
 and pass it to the different inference steps.
 
 .. code-block:: python
-    :emphasize-lines: 11, 12, 13, 14, 23, 28
+    :emphasize-lines: 8, 9, 10, 11, 20, 25
     :caption: *Running with a custom Dask Client*
 
     import pandas as pd
@@ -274,7 +274,7 @@ connected to the Dask `distributed scheduler`_ and pass it as an argument to the
 inference function.
 
 .. code-block:: python
-    :emphasize-lines: 13, 14, 18
+    :emphasize-lines: 10, 11, 15
     :caption: *Running with a Dask distributed scheduler*
 
     import pandas as pd

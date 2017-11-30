@@ -41,6 +41,22 @@ Using pip_, installing the arboretum package is straightforward:
 
     $ pip install arboretum
 
+Check out the installation:
+
+.. code-block:: bash
+
+    $ pip show arboretum
+
+    Name: arboretum
+    Version: 0.1.3
+    Summary: Scalable gene regulatory network inference using tree-based ensemble regressors
+    Home-page: https://github.com/tmoerman/arboretum
+    Author: Thomas Moerman
+    Author-email: thomas.moerman@gmail.com
+    License: BSD 3-Clause License
+    Location: /vsc-hard-mounts/leuven-data/software/biomed/Anaconda/5-Python-3.6/lib/python3.6/site-packages
+    Requires: scipy, scikit-learn, numpy, pandas, dask, distributed
+
 .. note::
     You can use pip_ to install arboretum in an Anaconda_ environment.
 
