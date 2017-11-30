@@ -148,7 +148,7 @@ def _prepare_client(client_or_address):
     """
 
     if client_or_address is None or str(client_or_address).lower() == 'local':
-        local_cluster = LocalCluster()
+        local_cluster = LocalCluster(diagnostics_port=None)
         client = Client(local_cluster)
 
         def close_client_and_local_cluster(verbose=False):

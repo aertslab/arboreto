@@ -10,7 +10,7 @@ Installation Guide
 .. caution:: **Python Environment**
 
     It is highly recommended to prepare a Python environment with the Anaconda_
-    or Miniconda_ distribution and install arboretum's dependencies using the
+    or Miniconda_ distribution and install Arboretum's dependencies using the
     conda_ package manager.
 
     - NumPy
@@ -29,6 +29,8 @@ Install using pip
 .. _pypi: https://pypi.python.org/pypi/arboretum/
 .. _pip: https://pip.pypa.io/en/stable/
 .. _git: https://git-scm.com/
+.. _github: https://github.com/tmoerman/arboretum
+.. _repository: https://github.com/tmoerman/arboretum
 
 The arboretum package is available from PyPI_ (Python Package Index), a repository
 of software for the Python programming language.
@@ -60,12 +62,30 @@ Using pip_, installing the arboretum package is straightforward:
         * dask
         * distributed
 
-Install using conda
--------------------
-
+.. Install using conda
+ -------------------
     TODO
 
 Install from source
 -------------------
 
-    TODO
+Installing Arboretum from source is possible using following steps:
+
+1. clone the Github_ repository_ using the git_ tool:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/tmoerman/arboretum.git
+    $ cd arboretum
+
+2. build Arboretum using the provided script:
+
+.. code-block:: bash
+
+    $ ./pypi_build.sh
+
+3. install the freshly built Arboretum package using pip_:
+
+.. code-block:: bash
+
+    $ pip install dist/*
