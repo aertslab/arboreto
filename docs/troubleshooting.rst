@@ -80,5 +80,50 @@ Example: reading a transposed text file with Pandas
     df = pd.read_csv(<ex_path>, index_col=0, header=None, sep='\t').T
 
 
+Q: Different runs produce different network outputs, why?
+---------------------------------------------------------
+
+Both GENIE3_ and GRNBoost2_ are based on stochastic machine learning techniques,
+which use a random number generator internally to perform random sub-sampling of
+observations and features when building decision trees.
+
+To stabilize the output, Arboretum accepts a seed_ value that is used to initialize
+the
+
+.. code-block:: python
+
+    TODO: run with a specific seed.
+
+
+----
+
 Troubleshooting
 ===============
+
+Bokeh error when launching ``dask-scheduler``
+---------------------------------------------
+
+.. code-block:: bash
+
+    vsc12345@r6i0n5 ~ 12:00 $ dask-scheduler
+
+    distributed.scheduler - INFO - -----------------------------------------------
+    distributed.scheduler - INFO - Could not launch service: ('bokeh', 8787)
+    Traceback (most recent call last):
+    File "/data/leuven/software/biomed/Anaconda/5-Python-3.6/lib/python3.6/site-packages/distributed/scheduler.py", line 430, in start_services
+        service.listen((listen_ip, port))
+        File "/data/leuven/software/biomed/Anaconda/5-Python-3.6/lib/python3.6/site-packages/distributed/bokeh/core.py", line 31, in listen
+            **kwargs)
+    File "/data/leuven/software/biomed/Anaconda/5-Python-3.6/lib/python3.6/site-packages/bokeh/server/server.py", line 371, in __init__
+        tornado_app = BokehTornado(applications, extra_websocket_origins=extra_websocket_origins, prefix=self.prefix, **kwargs)
+    TypeError: __init__() got an unexpected keyword argument 'host'
+    distributed.scheduler - INFO -   Scheduler at: tcp://10.118.224.134:8786
+    distributed.scheduler - INFO -        http at:                     :9786
+    distributed.scheduler - INFO - Local Directory:    /tmp/scheduler-y6b8mnih
+    distributed.scheduler - INFO - -----------------------------------------------
+    distributed.scheduler - INFO - Receive client connection: Client-7b476bf6-c6d8-11e7-b839-a0040220fe80
+    distributed.scheduler - INFO - End scheduler at 'tcp://:8786'
+
+* **Known error**: see `Github issue`_, resolved in a later Dask.distributed version (``0.20.0``).
+* **Workaround**: launch with bokeh disabled: ``dask-scheduler --no-bokeh``.
+* **Solution**: upgrade to Dask distributed ``0.20.0`` or higher

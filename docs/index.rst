@@ -33,10 +33,10 @@
 .. _`early-stopping`: https://en.wikipedia.org/wiki/Early_stopping
 
 .. _pip: https://pip.pypa.io/en/stable/installing/
-.. _installation: user/installation.html
-.. _examples: user/examples.html
-.. _`user guide`: user/index.html
-.. _`GRN inference algorithms`: user/algorithms.html
+.. _installation: installation.html
+.. _examples: examples.html
+.. _`user guide`: userguide.html
+.. _`GRN inference algorithms`: algorithms.html
 
 Inferring a gene regulatory network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances
 in high-throughput gene profiling technology.
@@ -116,9 +116,10 @@ References
     :maxdepth: 2
     :hidden:
 
-    user/installation
-    user/index
-    user/examples
-    user/algorithms
-    user/concept
-    user/troubleshooting
+    installation
+    userguide
+    examples
+    algorithms
+    concept
+    troubleshooting
+    lcb
