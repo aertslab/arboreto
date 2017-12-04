@@ -266,9 +266,9 @@ a Jupyter cell to check whether the cluster was set up correctly:
 
     In [1]: from distributed import Client
 
-    In [2]: c = Client('tcp://10.118.224.134:8786')
+    In [2]: client = Client('tcp://10.118.224.134:8786')
 
-    In [3]: c
+    In [3]: client
 
     Out[3]:
 
