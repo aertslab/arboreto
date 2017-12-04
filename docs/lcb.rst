@@ -7,6 +7,7 @@
 .. _`terminal multiplexer`: https://en.wikipedia.org/wiki/Terminal_multiplexer
 .. _tmux: https://github.com/tmux/tmux/wiki
 .. _jupyter: http://jupyter.org/
+.. _`jupyter lab`: https://github.com/jupyterlab/jupyterlab
 .. _`installation guide`: installation.html
 .. _`known issue`: #known-issues
 .. _`github issue`: https://github.com/dask/distributed/issues/1515
@@ -18,6 +19,10 @@ LCB Notes
 
 This page contains additional documentation relevant for the Stein Aerts Lab of
 Computation Biology (LCB_).
+
+.. contents::
+    :depth: 2
+    :local:
 
 VSC access
 ----------
@@ -68,9 +73,6 @@ in distributed mode, using the front nodes.
 
         $ module load tmux/2.5-foss-2014a
 
-Scenario
-~~~~~~~~
-
 We will set up a cluster using about half the CPU resources of the 5 larger nodes
 (``hpc2-big3`` to ``hpc2-big7``). One of the large nodes will also host the
 Dask scheduler. One a smaller node, we run a Jupyter_ notebook server from which we
@@ -83,12 +85,8 @@ run the GRN inference using Arboretum.
 
     LCB front nodes distributed architecture
 
-
-Setup
-~~~~~
-
 0. Software preparation
-+++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~
 
 As recommended in the `Installation Guide`_, we will use an Anaconda distribution.
 On the front nodes we do this by loading a module:
@@ -121,7 +119,7 @@ We now proceed with launching the Dask scheduler and workers. Make sure that on
 the nodes, the Anaconda module was loaded like explained above.
 
 1. Starting the Dask scheduler
-++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On node ``r6i0n5``, we launch the Dask scheduler.
 
@@ -155,7 +153,7 @@ The command launches 2 services:
     You can now view the Dask dashboard on url: ``http://localhost:8787``.
 
 2. Adding workers to the scheduler
-++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _nice: https://en.wikipedia.org/wiki/Nice_%28Unix%29
 
@@ -220,11 +218,11 @@ We now repeat the same command on the other compute nodes that will run Dask wor
     $ nice -n 10 dask-worker tcp://10.118.224.134:8786 --nprocs 24 --nthreads 1
 
 3. Running Arboretum from a Jupyter notebook
-++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 So far, we have a scheduler running with 5*24 worker processes connected to it and
-a diagnostics dashboard. Let's now run a Jupyter notebook or better, Jupyter lab
-server so that we can interact with the Dask cluster from within a notebook environment.
+a diagnostics dashboard. Let's now run a Jupyter_ notebook or `Jupyter Lab`_
+server so that we can interact with the Dask cluster from within a Jupyter_ environment.
 
 .. code-block:: bash
     :caption: ``vsc12345@r10n2``
@@ -258,6 +256,12 @@ command in a shell on your *local* machine:
 To access the notebook open a browser and navigate to following url:
 
     ``http://localhost:9999/?token=2dca6ce946265895846795c4983191c9f76ba954f414efdf``
+
+.. note::
+
+    Using Jupyter is **entirely optional**. Everything explained in the following
+    section is equally applicable to running Arboretum from a simple Python session
+    or script.
 
 Now we are set to create a new notebook in Jupyter and write some Python code in
 a Jupyter cell to check whether the cluster was set up correctly:
@@ -306,4 +310,4 @@ Note the progress gauges in the bottom:
 
     ``infer_data`` --> ``693 / 14086`` means that 693 out of 14086 inference steps
     have been completed so far. As the inference steps entail almost the entire
-    workload of the algorithm, this is an accurate progress indicator.
+    workload of the algorithm, this is a pretty accurate progress indicator.
