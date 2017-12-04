@@ -78,23 +78,43 @@ Example: reading a transposed text file with Pandas
 
 .. code-block:: python
 
-    df = pd.read_csv(<ex_path>, index_col=0, header=None, sep='\t').T
+    df = pd.read_csv(<ex_path>, index_col=0, sep='\t').T
+
+.. caution::
+
+    Don't carelessly copy/paste above snippet. Take into account absence or presence
+    of 1 or multiple header lines in the file.
+
+    **Always check whether the your DataFrame has the expected dimensions**!
+
+    .. code-block:: python
+
+        In[10]: df.shape
+
+        Out[10]: (17650, 14086)  # example
+
 
 
 Q: Different runs produce different network outputs, why?
 ---------------------------------------------------------
+
+.. _GRNBoost2: algorithms.html#grnboost2
+.. _GENIE3: algorithms.html#id1
+.. _seed: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.RandomState.html
 
 Both GENIE3_ and GRNBoost2_ are based on stochastic machine learning techniques,
 which use a random number generator internally to perform random sub-sampling of
 observations and features when building decision trees.
 
 To stabilize the output, Arboretum accepts a seed_ value that is used to initialize
-the
+the random number generator used by the machine learning algorithms.
 
 .. code-block:: python
+    :emphasize-lines: 3
 
-    TODO: run with a specific seed.
-
+    network_df = grnboost2(expression_data=ex_matrix,
+                           tf_names=tf_names,
+                           seed=777)
 
 ----
 
@@ -106,6 +126,8 @@ Troubleshooting
 
 Bokeh error when launching Dask scheduler
 -----------------------------------------
+
+.. _`Github issue`: https://github.com/dask/distributed/issues/1515
 
 .. code-block:: bash
 
@@ -128,6 +150,6 @@ Bokeh error when launching Dask scheduler
     distributed.scheduler - INFO - Receive client connection: Client-7b476bf6-c6d8-11e7-b839-a0040220fe80
     distributed.scheduler - INFO - End scheduler at 'tcp://:8786'
 
-* **Known error**: see `Github issue`_, resolved in a later Dask.distributed version (``0.20.0``).
-* **Workaround**: launch with bokeh disabled: ``dask-scheduler --no-bokeh``.
-* **Solution**: upgrade to Dask distributed ``0.20.0`` or higher
+* **known error**: see `Github issue`_ (closed), fixed in Dask.distributed version ``0.20.0``
+* **workaround**: launch with bokeh disabled: ``dask-scheduler --no-bokeh``
+* **solution**: upgrade to Dask distributed ``0.20.0`` or higher
