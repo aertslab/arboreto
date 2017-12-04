@@ -3,6 +3,7 @@
 .. _Gert: https://gbiomed.kuleuven.be/english/research/50000622/lcb/people/00079808
 .. _Mark: https://gbiomed.kuleuven.be/english/research/50000622/lcb/people/00089478
 .. _ssh: https://en.wikipedia.org/wiki/Secure_Shell
+.. _`port forwarding`: https://help.ubuntu.com/community/SSH/OpenSSH/PortForwarding
 .. _`terminal multiplexer`: https://en.wikipedia.org/wiki/Terminal_multiplexer
 .. _tmux: https://github.com/tmux/tmux/wiki
 .. _jupyter: http://jupyter.org/
@@ -10,6 +11,7 @@
 .. _`known issue`: #known-issues
 .. _`github issue`: https://github.com/dask/distributed/issues/1515
 .. _`diagnostics dashboard`: http://distributed.readthedocs.io/en/latest/web.html
+.. _`Running with a Dask distributed scheduler`: userguide.html#running-with-a-dask-distributed-scheduler
 
 LCB Notes
 =========
@@ -144,7 +146,7 @@ The command launches 2 services:
 
     The Dask `diagnostics dashboard`_ is useful for monitoring the progress of
     long-running Dask jobs. In order to view the dashboard, which runs on the VSC
-    front node ``r6i0n5``, use ssh port forwarding as follows:
+    front node ``r6i0n5``, use ssh `port forwarding`_ as follows:
 
     .. code-block:: bash
 
@@ -221,5 +223,87 @@ We now repeat the same command on the other compute nodes that will run Dask wor
 ++++++++++++++++++++++++++++++++++++++++++++
 
 So far, we have a scheduler running with 5*24 worker processes connected to it and
-a diagnostics dashboard. We can now proceed with launching an Arboretum job on
-the Dask cluster.
+a diagnostics dashboard. Let's now run a Jupyter notebook or better, Jupyter lab
+server so that we can interact with the Dask cluster from within a notebook environment.
+
+.. code-block:: bash
+    :caption: ``vsc12345@r10n2``
+    :emphasize-lines: 1, 14, 15, 16
+
+    $ jupyter lab --port 9999 --no-browser
+
+    [I 12:16:08.725 LabApp] JupyterLab alpha preview extension loaded from /data/leuven/software/biomed/Anaconda/5-Python-3.6/lib/python3.6/site-packages/jupyterlab
+    JupyterLab v0.27.0
+    Known labextensions:
+    [I 12:16:08.739 LabApp] Running the core application with no additional extensions or settings
+    [I 12:16:08.766 LabApp] Serving notebooks from local directory: /ddn1/vol1/staging/leuven/stg_00002/lcb/tmoerman/nb
+    [I 12:16:08.766 LabApp] 0 active kernels
+    [I 12:16:08.766 LabApp] The Jupyter Notebook is running at:
+    [I 12:16:08.766 LabApp] http://localhost:9999/?token=2dca6ce946265895846795c4983191c9f76ba954f414efdf
+    [I 12:16:08.766 LabApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+    [C 12:16:08.767 LabApp]
+
+        Copy/paste this URL into your browser when you connect for the first time,
+        to login with a token:
+            http://localhost:9999/?token=2dca6ce946265895846795c4983191c9f76ba954f414efdf
+
+Again, use ssh `port forwarding`_ to access the notebook server. Execute following
+command in a shell on your *local* machine:
+
+.. code-block:: bash
+    :caption: ``localhost``
+
+    $ ssh -L 9999:localhost:9999 hpc2-big2
+
+To access the notebook open a browser and navigate to following url:
+
+    ``http://localhost:9999/?token=2dca6ce946265895846795c4983191c9f76ba954f414efdf``
+
+Now we are set to create a new notebook in Jupyter and write some Python code in
+a Jupyter cell to check whether the cluster was set up correctly:
+
+.. code-block:: python
+
+    In [1]: from distributed import Client
+
+    In [2]: c = Client('tcp://10.118.224.134:8786')
+
+    In [3]: c
+
+    Out[3]:
+
+        Client
+        * Scheduler: tcp://10.118.224.134:8786
+        * Dashboard: http://10.118.224.134:35874
+
+        Cluster
+        * Workers: 120
+        * Cores: 120
+        * Memory: 1354.63 GB
+
+The cluster is set up and ready for Arboretum GRN inference work. Please review
+the section `Running with a Dask distributed scheduler`_ on how to use Arboretum in distributed mode.
+
+To run in distributed mode, we need to make one modification to the code launching
+the inference algorithm: specifying ``client_or_address`` in the (in this case) ``genie3`` function:
+
+.. code-block:: python
+    :emphasize-lines: 3
+
+    network_df = genie3(expression_data=ex_matrix,
+                        tf_names=tf_names,
+                        client_or_address=client)
+
+Now point a browser to ``localhost:8787/status`` to check the `diagnostics dashboard`_,
+you should see a visualization like this:
+
+.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/lcb/dashboard_front_nodes.png?raw=true
+    :align: center
+
+    Dask diagnostics dashboard visualizing Arboretum progress
+
+Note the progress gauges in the bottom:
+
+    ``infer_data`` --> ``693 / 14086`` means that 693 out of 14086 inference steps
+    have been completed so far. As the inference steps entail almost the entire
+    workload of the algorithm, this is an accurate progress indicator.
