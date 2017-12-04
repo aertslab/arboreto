@@ -7,12 +7,13 @@
 .. _pandas: https://pandas.pydata.org/
 .. _numpy: http://www.numpy.org/
 
-.. contents:: Page contents
-
 ----
 
 FAQ
 ===
+
+.. contents::
+    :local:
 
 Q: How can I use the Dask diagnostics (bokeh) dashboard?
 --------------------------------------------------------
@@ -100,8 +101,11 @@ the
 Troubleshooting
 ===============
 
-Bokeh error when launching ``dask-scheduler``
----------------------------------------------
+.. contents::
+    :local:
+
+Bokeh error when launching Dask scheduler
+-----------------------------------------
 
 .. code-block:: bash
 

@@ -13,7 +13,7 @@ Arboretum usage scenarios.
 
 * `Example 01 - GRNBoost2 local`_
 
-    A basic usage scenario where we will infer the gene regulatory network from a single dataset on the local machine.
+    A basic usage scenario where we infer the gene regulatory network from a single dataset on the local machine.
 
 * `Example 02 - GRNBoost2 with custom Dask Client`_
 

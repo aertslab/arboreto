@@ -17,6 +17,9 @@ User Guide
 .. _jupyter: http://jupyter.org/
 .. _`scikit-learn`: http://scikit-learn.org/
 
+.. contents::
+    :depth: 1
+    :local:
 
 Modules overview
 ----------------
@@ -50,27 +53,27 @@ thing, and doing it well.
 
 Concretely, the user will be exposed to one or more of following dependencies:
 
-* Pandas_ or NumPy_: the user is expected to provide the input data in an expected
-format. Pandas_ and NumPy_ are well equipped with functions for data preprocessing.
-* Dask.distributed_: to run Arboretum on a cluster, the user is responsible for
-setting up a network of a scheduler and workers.
-* scikit-learn_: relevant for advanced users only. Arboretum can run "DIY" inference
-where the user provides their own parameters for the Random Forest or Gradient Boosting
-regressors.
+* Pandas_ or NumPy_: the user is expected to provide the input data in an expected format. Pandas_ and NumPy_ are well equipped with functions for data preprocessing.
+* Dask.distributed_: to run Arboretum on a cluster, the user is responsible for setting up a network of a scheduler and workers.
+* scikit-learn_: relevant for advanced users only. Arboretum can run "DIY" inference where the user provides their own parameters for the Random Forest or Gradient Boosting regressors.
 
 
 Input / Output
 --------------
 
-Arboretum accepts as input:
+**INPUT**
 
 * an expression matrix (rows = observations, columns = genes)
-* (optionally) a list of gene names in the expression matrix
-* (optionally) a list of transcription factors (a.k.a. TFs)
+    * either a Pandas_ DataFrame_ or a NumPy_ ndarray_
+* a list of gene names corresponding to the columns of the expression matrix
+    * optional
+* a list of transcription factors (a.k.a. TFs)
+    * optional
 
-Arboretum returns as output:
+**OUTPUT**
 
-* a Pandas_ DataFrame_ (DF) with columns ``['TF', 'target', 'importance']``
+* regulatory links
+    * a Pandas_ DataFrame_ ``['TF', 'target', 'importance']``
 
 .. _`net1_expression_data.tsv`: https://github.com/tmoerman/arboretum/tree/master/resources/dream5/net1/net1_expression_data.tsv
 .. _`net1_transcription_factors.tsv`: https://github.com/tmoerman/arboretum/tree/master/resources/dream5/net1/net1_transcription_factors.tsv
@@ -91,17 +94,8 @@ The input can be specified in a number of ways. Arguably the most straightforwar
 way is to specify the expression matrix as a Pandas_ DataFrame_, which also contains
 the gene names as the column header.
 
-.. parsed-literal::
-
-    .-------------.
-    | expression  |
-    | matrix (DF_) | ---.      .-----------.
-    '-------------'     \\     | GRNBoost2_ |     .------------.
-                         :--> |    or     | --> | regulatory |
-    .---------------.   /     | GENIE3_    |     | links (DF_) |
-    | transcription | -'      '-----------'     '------------'
-    | factors       |
-    '---------------'
+.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/user_guide_figure1.png?raw=true
+    :alt: User Guide Figure 1
 
 In the following code snippet, we launch network inference with grnboost2_ by
 specifying the ``expression_data`` as a DataFrame_.
@@ -132,19 +126,8 @@ Arboretum also supports specifying the expression matrix as a Numpy_ ndarray_
 (in our case: a 2-dimensional matrix). In this case, the gene names must be
 specified explicitly.
 
-.. parsed-literal::
-
-    .-------------.
-    | expression  |
-    | matrix (DF_) | -----.
-    '-------------'      |    .-----------.
-    .-------------.      |    | GRNBoost2_ |     .------------.
-    | gene names  | -----+--> |    or     | --> | regulatory |
-    '-------------'      |    | GENIE3_    |     | links (DF_) |
-    .---------------.    |    '-----------'     '------------'
-    | transcription | ---'
-    | factors       |
-    '---------------'
+.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/user_guide_figure2.png?raw=true
+    :alt: User Guide Figure 2
 
 .. caution::
 
@@ -249,19 +232,8 @@ is required to `set up`_ a dask.distributed ``scheduler`` and some ``workers``.
 
 Following diagram illustrates a possible topology of a Dask distributed cluster.
 
-.. parsed-literal::
-
-                        .=[node_2]==============.          .=[node_3]=========.
-   .=[node_1]======.    |  .--------------.     |          |  .------------.  |
-   |  .--------.   |    |  | Dask         |<----+----------+--| 10 workers |  |
-   |  | Client |---+----+->| distributed  |<----+--.       |  '------------'  |
-   |  '--------'   |    |  | scheduler    |<-.  |   \      '=================='
-   '==============='    |  '--------------'  |  |    \
-                        |                    |  |     \    .=[node_4]=========.
-                        |  .------------.    |  |      \   |  .------------.  |
-                        |  | 10 workers |----'  |       '--+--| 10 workers |  |
-                        |  '------------'       |          |  '------------'  |
-                        '======================='          '=================='
+.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/user_guide_figure3.png?raw=true
+    :alt: User Guide Figure 3
 
 * ``node_1`` runs a Python script, console or a Jupyter_ notebook server, a Client_ instance is configured with the TCP address of the distributed scheduler, running on ``node_2``
 * ``node_2`` runs a distributed scheduler and 10 workers pointing to the scheduler
