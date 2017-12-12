@@ -1,5 +1,5 @@
 """
-Script for performance tests.
+Python script for Arboretum with command line interface support.
 """
 
 import argparse
@@ -19,6 +19,8 @@ parser.add_argument('-a', '--scheduler_address', required=False, help='Dask sche
 parser.add_argument('--genie3', help='use GENIE3', action='store_true')
 parser.add_argument('--grnboost2', help='use GRNBoost2 (default)', action='store_true')
 parser.add_argument('--dry-run', action='store_true')
+parser.add_argument('--seed', type=int, required=False, default=None,
+                    help='Seed value for regressor random state initialization (optional)')
 
 
 if __name__ == '__main__':
@@ -96,7 +98,8 @@ if __name__ == '__main__':
 
         network_df = inf_algo(expression_data=expression_matrix,
                               tf_names=tf_names,
-                              client_or_address=client)
+                              client_or_address=client,
+                              seed=args.seed)
 
         if client:
             client.shutdown()
