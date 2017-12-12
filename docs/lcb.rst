@@ -263,8 +263,8 @@ To access the notebook open a browser and navigate to following url:
     section is equally applicable to running Arboretum from a simple Python session
     or script.
 
-Now we are set to create a new notebook in Jupyter and write some Python code in
-a Jupyter cell to check whether the cluster was set up correctly:
+Now we are ready to create a new notebook in Jupyter and write some Python code
+to check whether the cluster was set up correctly:
 
 .. code-block:: python
 
@@ -298,8 +298,9 @@ the inference algorithm: specifying ``client_or_address`` in the (in this case) 
                         tf_names=tf_names,
                         client_or_address=client)
 
-Now point a browser to ``localhost:8787/status`` to check the `diagnostics dashboard`_,
-you should see a visualization like this:
+While our computation is running, we can consult the Dask `diagnostics dashboard`_
+to monitor progress. Point a browser to ``localhost:8787/status``, you should see
+a dynamic visualization like this:
 
 .. figure:: https://github.com/tmoerman/arboretum/blob/master/img/lcb/dashboard_front_nodes.png?raw=true
     :align: center
