@@ -102,22 +102,37 @@ specifying the ``expression_data`` as a DataFrame_.
 
 .. code-block:: python
     :caption: *Expression matrix as a Pandas DataFrame*
+    :emphasize-lines: 5
 
     import pandas as pd
-
     from arboretum.utils import load_tf_names
     from arboretum.algo import grnboost2
 
-    # ex_matrix is a DataFrame with gene names as column names
-    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+    if __name__ == '__main__':
+        # ex_matrix is a DataFrame with gene names as column names
+        ex_matrix = pd.read_csv(<ex_path>, sep='\t')
 
-    # tf_names is read using a utility function included in Arboretum
-    tf_names = load_tf_names(<tf_path>)
+        # tf_names is read using a utility function included in Arboretum
+        tf_names = load_tf_names(<tf_path>)
 
-    network = grnboost2(expression_data=ex_matrix,
-                        tf_names=tf_names)
+        network = grnboost2(expression_data=ex_matrix,
+                            tf_names=tf_names)
 
-    network.to_csv('output.tsv', sep='\t', index=False, header=False)
+        network.to_csv('output.tsv', sep='\t', index=False, header=False)
+
+.. note::
+
+    Notice the emphasized line:
+
+    .. code-block:: python
+        :emphasize-lines: 1
+
+        if __name__ == '__main__':
+            # ... code ...
+
+    This is a Python idiom necessary in situations where the code spawns new
+    Python processes, which Dask does under the hood of the ``grnboost2`` and
+    ``genie3`` functions to parallelize the workload.
 
 Expression matrix as a NumPy ``ndarray``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,28 +154,28 @@ specified explicitly.
     :caption: *Expression matrix as a NumPy ndarray*
 
     import numpy as np
-
     from arboretum.utils import load_tf_names
     from arboretum.algo import grnboost2
 
-    # ex_matrix is a numpy ndarray, which has no notion of column names
-    ex_matrix = np.genfromtxt(<ex_path>, delimiter='\t', skip_header=1)
+    if __name__ == '__main__':
+        # ex_matrix is a numpy ndarray, which has no notion of column names
+        ex_matrix = np.genfromtxt(<ex_path>, delimiter='\t', skip_header=1)
 
-    # we read the gene names from the first line of the file
-    with open(<ex_path>) as file:
-        gene_names = [gene.strip() for gene in file.readline().split('\t')]
+        # we read the gene names from the first line of the file
+        with open(<ex_path>) as file:
+            gene_names = [gene.strip() for gene in file.readline().split('\t')]
 
-    # sanity check to verify the ndarray's nr of columns equals the length of the gene_names list
-    assert ex_matrix.shape[1] == len(gene_names)
+        # sanity check to verify the ndarray's nr of columns equals the length of the gene_names list
+        assert ex_matrix.shape[1] == len(gene_names)
 
-    # tf_names is read using a utility function included in Arboretum
-    tf_names = load_tf_names(<tf_path>)
+        # tf_names is read using a utility function included in Arboretum
+        tf_names = load_tf_names(<tf_path>)
 
-    network = grnboost2(expression_data=ex_matrix,
-                        gene_names=gene_names,  # specify the gene_names
-                        tf_names=tf_names)
+        network = grnboost2(expression_data=ex_matrix,
+                            gene_names=gene_names,  # specify the gene_names
+                            tf_names=tf_names)
 
-    network.to_csv('output.tsv', sep='\t', index=False, header=False)
+        network.to_csv('output.tsv', sep='\t', index=False, header=False)
 
 Running with a custom Dask Client
 ---------------------------------
@@ -185,38 +200,38 @@ and pass it to the different inference steps.
     :caption: *Running with a custom Dask Client*
 
     import pandas as pd
-
     from arboretum.utils import load_tf_names
     from arboretum.algo import grnboost2
     from distributed import LocalCluster, Client
 
-    # create custom LocalCluster and Client instances
-    local_cluster = LocalCluster(n_workers=10,
-                                 threads_per_worker=1,
-                                 memory_limit=8e9)
-    custom_client = Client(local_cluster)
+    if __name__ == '__main__':
+        # create custom LocalCluster and Client instances
+        local_cluster = LocalCluster(n_workers=10,
+                                     threads_per_worker=1,
+                                     memory_limit=8e9)
+        custom_client = Client(local_cluster)
 
-    # load the data
-    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
-    tf_names = load_tf_names(<tf_path>)
+        # load the data
+        ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+        tf_names = load_tf_names(<tf_path>)
 
-    # run GRN inference multiple times
-    network_666 = grnboost2(expression_data=ex_matrix,
-                            tf_names=tf_names,
-                            client_or_address=custom_client,  # specify the custom client
-                            seed=666)
+        # run GRN inference multiple times
+        network_666 = grnboost2(expression_data=ex_matrix,
+                                tf_names=tf_names,
+                                client_or_address=custom_client,  # specify the custom client
+                                seed=666)
 
-    network_777 = grnboost2(expression_data=ex_matrix,
-                            tf_names=tf_names,
-                            client_or_address=custom_client,  # specify the custom client
-                            seed=777)
+        network_777 = grnboost2(expression_data=ex_matrix,
+                                tf_names=tf_names,
+                                client_or_address=custom_client,  # specify the custom client
+                                seed=777)
 
-    # close the Client and LocalCluster after use
-    client.close()
-    local_cluster.close()
+        # close the Client and LocalCluster after use
+        client.close()
+        local_cluster.close()
 
-    network_666.to_csv('output_666.tsv', sep='\t', index=False, header=False)
-    network_777.to_csv('output_777.tsv', sep='\t', index=False, header=False)
+        network_666.to_csv('output_666.tsv', sep='\t', index=False, header=False)
+        network_777.to_csv('output_777.tsv', sep='\t', index=False, header=False)
 
 Running with a Dask distributed scheduler
 -----------------------------------------
@@ -250,22 +265,22 @@ inference function.
     :caption: *Running with a Dask distributed scheduler*
 
     import pandas as pd
-
     from arboretum.utils import load_tf_names
     from arboretum.algo import grnboost2
     from distributed import Client
 
-    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
-    tf_names = load_tf_names(<tf_path>)
+    if __name__ == '__main__':
+        ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+        tf_names = load_tf_names(<tf_path>)
 
-    scheduler_address = 'tcp://10.118.224.134:8786'  # example address of the remote scheduler
-    cluster_client = Client(scheduler_address)       # create a custom Client
+        scheduler_address = 'tcp://10.118.224.134:8786'  # example address of the remote scheduler
+        cluster_client = Client(scheduler_address)       # create a custom Client
 
-    network = grnboost2(expression_data=ex_matrix,
-                        tf_names=tf_names,
-                        client_or_address=cluster_client)  # specify Client connected to the remote scheduler
+        network = grnboost2(expression_data=ex_matrix,
+                            tf_names=tf_names,
+                            client_or_address=cluster_client)  # specify Client connected to the remote scheduler
 
-    network.to_csv('output.tsv', sep='\t', index=False, header=False)
+        network.to_csv('output.tsv', sep='\t', index=False, header=False)
 
 
 .. In local mode, the user does not need to know the details of the underlying

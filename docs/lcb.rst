@@ -263,6 +263,15 @@ To access the notebook open a browser and navigate to following url:
     section is equally applicable to running Arboretum from a simple Python session
     or script.
 
+    As an example, please consider `this script <https://github.com/tmoerman/arboretum/blob/master/scripts/run_arboretum.py>`_. Remember that the main code
+    should be in a code block protected by:
+
+    .. code-block:: python
+        :emphasize-lines: 1
+
+        if __name__ == '__main__':
+            # ... code ...
+
 Now we are ready to create a new notebook in Jupyter and write some Python code
 to check whether the cluster was set up correctly:
 
