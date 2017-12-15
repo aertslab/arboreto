@@ -55,15 +55,15 @@ a series of steps, one for each target gene in the dataset, where the most impor
 model to predict a target gene's expression profile.
 
 Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboretum,
-we specify the parallelizable computation as a dask_ graph [2]_, a data structure that represents the task schedule of a computation. A dask scheduler assigns the
-tasks in a dask graph to the available computational resources. Arboretum uses the `dask distributed`_ scheduler to
+we specify the parallelizable computation as a Dask_ graph [2]_, a data structure that represents the task schedule of a computation. A Dask scheduler assigns the
+tasks in a Dask graph to the available computational resources. Arboretum uses the `Dask distributed`_ scheduler to
 spread out the computational tasks over multiple processes running on one or multiple machines.
 
 Arboretum currently supports 2 `GRN inference algorithms`_:
 
-1. **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ [3]_ (SGBM) regression with `early-stopping`_ regularization.
+1. **GRNBoost2**: fast GRN inference algorithm using `stochastic Gradient Boosting Machine`_ [3]_ regression with `early-stopping`_ regularization, the Arboretum flagship algorithm.
 
-2. **GENIE3**: the classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
+2. **GENIE3**: the popular classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
 
 Usage Example
 =============
@@ -75,15 +75,16 @@ Usage Example
     from arboretum.utils import load_tf_names
     from arboretum.algo import grnboost2
 
-    # load the data
-    ex_matrix = pd.read_csv(<ex_path>, sep='\t')
-    tf_names = load_tf_names(<tf_path>)
+    if __name__ == '__main__':
+        # load the data
+        ex_matrix = pd.read_csv(<ex_path>, sep='\t')
+        tf_names = load_tf_names(<tf_path>)
 
-    # infer the gene regulatory network
-    network = grnboost2(expression_data=ex_matrix,
-                        tf_names=tf_names)
+        # infer the gene regulatory network
+        network = grnboost2(expression_data=ex_matrix,
+                            tf_names=tf_names)
 
-    network.head()
+        network.head()
 
 ====  ======  ==========
 TF    target  importance
