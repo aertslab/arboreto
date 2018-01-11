@@ -11,7 +11,7 @@ import time
 
 from arboretum.algo import genie3, grnboost2
 from arboretum.utils import load_tf_names
-from distributed import Client, LocalCluster
+from distributed import Client
 
 DEFAULT_N_RUNS = 100
 
@@ -74,7 +74,9 @@ def run_algo(client, algo_name, seed_value):
 
 if __name__ == '__main__':
 
-    client = Client(LocalCluster)
+    client = Client()
+
+    print(str(client))
 
     for seed in seeds:
         print('running {0} with seed {1}'.format(algo, seed))
