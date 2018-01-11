@@ -28,8 +28,8 @@ datasets = [('net1', net1_expression, net1_tfs),
             ('net3', net3_expression, net3_tfs),
             ('net4', net4_expression, net4_tfs)]
 
-out_dir = '../output/dream5/'
 algo = 'grnboost2'
+out_dir = '../output/dream5/{}/'.format(algo)
 
 # seeds = [seed * 100 for seed in range(0, 100)]
 seeds = [seed * 100 for seed in range(0, 1)]
