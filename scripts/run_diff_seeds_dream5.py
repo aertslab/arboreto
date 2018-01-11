@@ -11,6 +11,7 @@ import time
 
 from arboretum.algo import genie3, grnboost2
 from arboretum.utils import load_tf_names
+from distributed import Client, LocalCluster
 
 DEFAULT_N_RUNS = 100
 
@@ -31,14 +32,14 @@ datasets = [('net1', net1_expression, net1_tfs),
 algo = 'grnboost2'
 out_dir = '../output/dream5/{}/'.format(algo)
 
-# seeds = [seed * 100 for seed in range(0, 100)]
-seeds = [seed * 100 for seed in range(0, 1)]
+seeds = [seed * 100 for seed in range(0, 100)]
+# seeds = [seed * 100 for seed in range(0, 1)]
 
 # dry_run = True
 dry_run = False
 
 
-def run_algo(algo_name, seed_value):
+def run_algo(client, algo_name, seed_value):
 
     if algo_name == 'genie3':
         inf_algo = genie3
@@ -54,7 +55,8 @@ def run_algo(algo_name, seed_value):
 
         exp_matrix = pd.read_csv(exp_path, sep='\t')
         tf_names = load_tf_names(tfs_path)
-        network_df = inf_algo(expression_data=exp_matrix,
+        network_df = inf_algo(client_or_address=client,
+                              expression_data=exp_matrix,
                               tf_names=tf_names,
                               seed=seed_value)
 
@@ -72,8 +74,12 @@ def run_algo(algo_name, seed_value):
 
 if __name__ == '__main__':
 
+    client = Client(LocalCluster)
+
     for seed in seeds:
         print('running {0} with seed {1}'.format(algo, seed))
 
         if not dry_run:
-            run_algo(algo, seed)
+            run_algo(client, algo, seed)
+
+    client.shutdown()
