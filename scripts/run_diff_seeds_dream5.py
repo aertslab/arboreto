@@ -29,7 +29,8 @@ datasets = [('net1', net1_expression, net1_tfs),
             ('net3', net3_expression, net3_tfs),
             ('net4', net4_expression, net4_tfs)]
 
-algo = 'grnboost2'
+# algo = 'grnboost2'
+algo = 'genie3'
 out_dir = '../output/dream5/{}/'.format(algo)
 
 seeds = [seed * 100 for seed in range(0, 100)]
@@ -58,7 +59,8 @@ def run_algo(client, algo_name, seed_value):
         network_df = inf_algo(client_or_address=client,
                               expression_data=exp_matrix,
                               tf_names=tf_names,
-                              seed=seed_value)
+                              seed=seed_value,
+                              limit=100000)
 
         inf_time = time.time()
         delta_time = inf_time - start_time
@@ -67,7 +69,7 @@ def run_algo(client, algo_name, seed_value):
 
         network_out_path = '{0}{1}.seed_{2}.csv'.format(out_dir, network_name, seed)
 
-        network_df.to_csv(network_out_path, sep='\t')
+        network_df.to_csv(network_out_path, sep='\t', index=None, header=None)
 
         print('{0} with seed {1} written to {2}'.format(network_name, seed, network_out_path))
 
