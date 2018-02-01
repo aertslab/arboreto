@@ -160,5 +160,21 @@ Workers do not connect with Dask scheduler
 We have observed that sometimes when running the ``dask-worker`` command, the
 workers start but no connections are made to the scheduler.
 
-* **solution**: delete the ``dask-worker-space`` directory before starting the workers.
-* **possibly related** Github issue: https://github.com/dask/distributed/issues/1707
+**Solutions**:
+
+* delete the ``dask-worker-space`` directory before starting the workers.
+* specifying the ``local_dir`` (with enough space) when instantiating a Dask
+distributed ``Client``:
+
+.. code-block:: python3
+    :emphasize-lines: 2,3
+
+    >>> from dask.distributed import Client, LocalCluster
+    >>> worker_kwargs = {'local_dir': '/tmp'}
+    >>> cluster = LocalCluster(**worker_kwargs)
+    >>> client = Client(cluster)
+    >>> client
+
+    <Client: scheduler='tcp://127.0.0.1:41803' processes=28 cores=28>
+
+* **Github issue**: https://github.com/dask/distributed/issues/1707
