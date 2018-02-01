@@ -153,3 +153,12 @@ Bokeh error when launching Dask scheduler
 * **known error**: see `Github issue`_ (closed), fixed in Dask.distributed version ``0.20.0``
 * **workaround**: launch with bokeh disabled: ``dask-scheduler --no-bokeh``
 * **solution**: upgrade to Dask distributed ``0.20.0`` or higher
+
+Workers do not connect with Dask scheduler
+------------------------------------------
+
+We have observed that sometimes when running the ``dask-worker`` command, the
+workers start but no connections are made to the scheduler.
+
+* **solution**: delete the ``dask-worker-space`` directory before starting the workers.
+* **possibly related** Github issue: https://github.com/dask/distributed/issues/1707
