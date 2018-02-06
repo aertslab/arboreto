@@ -29,6 +29,7 @@ def load_gene_names(path, delimiter='\t'):
 
     return gene_names
 
+
 net1_ex_matrix = load_expression_matrix(net1_ex_path)
 net1_gene_names = load_gene_names(net1_ex_path)
 net1_tf_names_pure = load_tf_names(net1_tf_path)
@@ -59,7 +60,7 @@ class IsOobHeuristicSupportedTests(TestCase):
 class ToTFMatrixTests(TestCase):
 
     def test_TF_matrix(self):
-        self.assertEquals(net1_tf_matrix.shape, (805, 195))
+        self.assertEqual(net1_tf_matrix.shape, (805, 195))
 
 
 class InferDataTests(TestCase):
@@ -129,7 +130,7 @@ class RetryTests(TestCase):
     def test_blue_skies(self):
         result = retry(self.blue_skies)
 
-        self.assertEquals(result, 1)
+        self.assertEqual(result, 1)
 
     def test_always_fails_no_fallback(self):
         result = retry(self.i_will_never_work)
@@ -139,12 +140,12 @@ class RetryTests(TestCase):
     def test_always_fails_with_fallback(self):
         result = retry(self.i_will_never_work, fallback_result=1)
 
-        self.assertEquals(result, 1)
+        self.assertEqual(result, 1)
 
     def test_succeeds_after_attempts(self):
         result = retry(self.i_procrastinate)
 
-        self.assertEquals(result, 1)
+        self.assertEqual(result, 1)
 
 
 class ComputeGraphTests(TestCase):
@@ -162,7 +163,7 @@ class ComputeGraphTests(TestCase):
 
         network_df = graph.compute(get=dask.get)
 
-        self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
+        self.assertEqual(len(self.test_range), len(network_df['target'].unique()))
 
     @skip
     def test_net1_links_and_meta_3_targets(self):
@@ -180,8 +181,8 @@ class ComputeGraphTests(TestCase):
         network_df = result[0]
         meta_df = result[1]
 
-        self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
-        self.assertEquals(len(self.test_range), len(meta_df['target'].unique()))
+        self.assertEqual(len(self.test_range), len(network_df['target'].unique()))
+        self.assertEqual(len(self.test_range), len(meta_df['target'].unique()))
 
     def test_with_distributed_client(self):
         lc = LocalCluster(diagnostics_port=None)
@@ -197,7 +198,7 @@ class ComputeGraphTests(TestCase):
 
         network_df = client.compute(graph, sync=True)
 
-        self.assertEquals(len(self.test_range), len(network_df['target'].unique()))
+        self.assertEqual(len(self.test_range), len(network_df['target'].unique()))
 
         client.close()
         lc.close()
@@ -233,8 +234,8 @@ class CleanTFMatrixTests(TestCase):
     def test_target_is_TF(self):
         (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, self.tf_matrix_gene_names, self.target_is_TF)
 
-        self.assertEquals(clean_tf_matrix.shape[1], self.tf_matrix.shape[1] - 1)
-        self.assertEquals(len(clean_tf_names), len(self.tf_matrix_gene_names) - 1)
+        self.assertEqual(clean_tf_matrix.shape[1], self.tf_matrix.shape[1] - 1)
+        self.assertEqual(len(clean_tf_names), len(self.tf_matrix_gene_names) - 1)
 
         self.assertTrue(self.target_is_TF in self.tf_matrix_gene_names)
         self.assertFalse(self.target_is_TF in clean_tf_names)
@@ -242,8 +243,8 @@ class CleanTFMatrixTests(TestCase):
     def test_target_not_TF(self):
         (clean_tf_matrix, clean_tf_names) = clean(self.tf_matrix, self.tf_matrix_gene_names, self.target_not_TF)
 
-        self.assertEquals(clean_tf_matrix.shape, self.tf_matrix.shape)
-        self.assertEquals(clean_tf_names, self.tf_matrix_gene_names)
+        self.assertEqual(clean_tf_matrix.shape, self.tf_matrix.shape)
+        self.assertEqual(clean_tf_names, self.tf_matrix_gene_names)
 
 
 class TargetGeneIndicesTest(TestCase):
@@ -251,21 +252,21 @@ class TargetGeneIndicesTest(TestCase):
     gene_names = ['A', 'B', 'C', 'D', 'E']
 
     def test_empty(self):
-        self.assertEquals([], target_gene_indices(self.gene_names, []))
+        self.assertEqual([], target_gene_indices(self.gene_names, []))
 
     def test_subset_strings(self):
-        self.assertEquals([0, 2, 4], target_gene_indices(self.gene_names, ['A', 'C', 'E']))
+        self.assertEqual([0, 2, 4], target_gene_indices(self.gene_names, ['A', 'C', 'E']))
 
     def test_subset_ints(self):
-        self.assertEquals([0, 2, 4], target_gene_indices(self.gene_names, [0, 2, 4]))
+        self.assertEqual([0, 2, 4], target_gene_indices(self.gene_names, [0, 2, 4]))
 
     def test_all(self):
-        self.assertEquals([0, 1, 2, 3, 4], target_gene_indices(self.gene_names, 'all'))
+        self.assertEqual([0, 1, 2, 3, 4], target_gene_indices(self.gene_names, 'all'))
 
     def test_top(self):
-        self.assertEquals([0, 1, 2], target_gene_indices(self.gene_names, 3))
+        self.assertEqual([0, 1, 2], target_gene_indices(self.gene_names, 3))
 
-        self.assertEquals([0, 1, 2, 3, 4], target_gene_indices(self.gene_names, 6))
+        self.assertEqual([0, 1, 2, 3, 4], target_gene_indices(self.gene_names, 6))
 
         with self.assertRaises(AssertionError):
             target_gene_indices(self.gene_names, 0)
@@ -282,10 +283,10 @@ class TargetGeneIndicesTest(TestCase):
 class Dream5Net1Tests(TestCase):
 
     def test_load_net1_matrix(self):
-        self.assertEquals(net1_shape, net1_ex_matrix.shape)
+        self.assertEqual(net1_shape, net1_ex_matrix.shape)
 
     def test_load_net1_gene_names(self):
-        self.assertEquals(net1_shape[1], len(net1_gene_names))
+        self.assertEqual(net1_shape[1], len(net1_gene_names))
 
     def test_load_net1_tf_names(self):
-        self.assertEquals(195, len(net1_tf_matrix_gene_names))
+        self.assertEqual(195, len(net1_tf_matrix_gene_names))
