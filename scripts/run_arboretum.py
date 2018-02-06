@@ -14,11 +14,11 @@ from distributed import Client
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help='the expression matrix file (required)')
 parser.add_argument('-tf', type=str, required=True, help='the transcription factors file (required)')
-parser.add_argument('-o', type=str, required=True, help='the file for the network output (requires)')
+parser.add_argument('-o', type=str, required=True, help='the file for the network output (required)')
 parser.add_argument('-a', '--scheduler_address', required=False, help='Dask scheduler address (optional)')
 parser.add_argument('--genie3', help='use GENIE3', action='store_true')
 parser.add_argument('--grnboost2', help='use GRNBoost2 (default)', action='store_true')
-parser.add_argument('--dry-run', action='store_true')
+parser.add_argument('--dry-run', action='store_true', help='test input without launching inference runs (optional)')
 parser.add_argument('--seed', type=int, required=False, default=None,
                     help='Seed value for regressor random state initialization (optional)')
 
