@@ -82,6 +82,14 @@ def is_oob_heuristic_supported(regressor_type, regressor_kwargs):
         regressor_kwargs['subsample'] < 1.0
 
 
+def is_weighted_by_oob_heuristic(regressor_kwargs):
+    """
+    :param regressor_kwargs:
+    :return:
+    """
+    return regressor_kwargs.get('oob_weighted') is True
+
+
 def to_tf_matrix(expression_matrix,
                  gene_names,
                  tf_names):
@@ -148,20 +156,33 @@ def to_feature_importances(regressor_type,
     Motivation: when the out-of-bag improvement heuristic is used, we cancel the effect of normalization by dividing
     by the number of trees in the regression ensemble by multiplying again by the number of trees used.
 
-    This enables prioritizing links that were inferred in a regression where lots of
-
     :param regressor_type: string. Case insensitive.
     :param regressor_kwargs: a dictionary of key-value pairs that configures the regressor.
     :param trained_regressor: the trained model from which to extract the feature importances.
     :return: the feature importances inferred from the trained model.
     """
 
+    def sum_trees(weighted=True):
+        improvement_weight_vector = trained_regressor.oob_improvement_
+
+        if weighted:
+            print(improvement_weight_vector)
+
+        total_sum = np.zeros((trained_regressor.n_features_,), dtype=np.float64)
+        for idx, stage in enumerate(trained_regressor.estimators_):
+            stage_sum = sum(tree.feature_importances_
+                            for tree in stage) / len(stage)
+            if weighted:
+                stage_sum = stage_sum * improvement_weight_vector[idx]
+            total_sum += stage_sum
+
+        return total_sum
+
     if is_oob_heuristic_supported(regressor_type, regressor_kwargs):
-        n_estimators = len(trained_regressor.estimators_)
-
-        denormalized_importances = trained_regressor.feature_importances_ * n_estimators
-
-        return denormalized_importances
+        if is_weighted_by_oob_heuristic(regressor_kwargs):
+            return sum_trees(weighted=True)  # not normalized by n_trees, weighted sum
+        else:
+            return sum_trees(weighted=False)  # not normalized by n_trees
     else:
         return trained_regressor.feature_importances_
 
@@ -193,8 +214,7 @@ def to_links_df(regressor_type,
              connection strength.
     """
 
-    def pythonic():
-        # feature_importances = trained_regressor.feature_importances_
+    def from_sklearn_model():
         feature_importances = to_feature_importances(regressor_type, regressor_kwargs, trained_regressor)
 
         links_df = pd.DataFrame({'TF': tf_matrix_gene_names, 'importance': feature_importances})
@@ -205,7 +225,7 @@ def to_links_df(regressor_type,
         return clean_links_df[['TF', 'target', 'importance']]
 
     if is_sklearn_regressor(regressor_type):
-        return pythonic()
+        return from_sklearn_model()
     elif is_xgboost_regressor(regressor_type):
         raise ValueError('XGB regressor not yet supported')
     else:
@@ -297,6 +317,7 @@ def infer_data(regressor_type,
              meta_df: a Pandas DataFrame['target', 'meta', 'value'] containing meta information regarding the trained
              regression model.
     """
+
     def fn():
         (clean_tf_matrix, clean_tf_matrix_gene_names) = clean(tf_matrix, tf_matrix_gene_names, target_gene_name)
 
