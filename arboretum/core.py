@@ -165,9 +165,6 @@ def to_feature_importances(regressor_type,
     def sum_trees(weighted=True):
         improvement_weight_vector = trained_regressor.oob_improvement_
 
-        if weighted:
-            print(improvement_weight_vector)
-
         total_sum = np.zeros((trained_regressor.n_features_,), dtype=np.float64)
         for idx, stage in enumerate(trained_regressor.estimators_):
             stage_sum = sum(tree.feature_importances_
