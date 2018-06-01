@@ -29,6 +29,7 @@ def load_gene_names(path, delimiter='\t'):
 
     return gene_names
 
+
 net1_ex_matrix = load_expression_matrix(net1_ex_path)
 net1_gene_names = load_gene_names(net1_ex_path)
 net1_tf_names_pure = load_tf_names(net1_tf_path)
@@ -86,21 +87,45 @@ class InferDataTests(TestCase):
 
         self.assertFalse(target_gene_name in links_df['TF'].values)
 
-    def test_smoke_fit_RF_model(self):
-        self.inner("RF", RF_KWARGS, self.TF)
-        self.inner("RF", RF_KWARGS, self.NO_TF)
+    def inner2(self, regressor_type, regressor_kwargs, target_idx, seed=DEMON_SEED):
+        target_gene_name = net1_gene_names[target_idx]
+        target_gene_expression = net1_ex_matrix[:, target_idx]
 
-    def test_smoke_fit_ET_model(self):
-        self.inner("ET", ET_KWARGS, self.TF)
-        self.inner("ET", ET_KWARGS, self.NO_TF)
+        links_df = infer_data(regressor_type,
+                              regressor_kwargs,
+                              net1_tf_matrix,
+                              net1_tf_matrix_gene_names,
+                              target_gene_name,
+                              target_gene_expression,
+                              include_meta=False,
+                              seed=seed)
 
-    def test_smoke_fit_GBM_model(self):
-        self.inner("GBM", GBM_KWARGS, self.TF)
-        self.inner("GBM", GBM_KWARGS, self.NO_TF)
+        self.assertListEqual(list(links_df.columns), ['TF', 'target', 'importance'])
 
-    def test_smoke_fit_stochastic_GBM_model(self):
-        self.inner("GBM", SGBM_KWARGS, self.TF)
-        self.inner("GBM", SGBM_KWARGS, self.NO_TF)
+        self.assertFalse(target_gene_name in links_df['TF'].values)
+
+    # def test_smoke_fit_RF_model(self):
+    #     self.inner("RF", RF_KWARGS, self.TF)
+    #     self.inner("RF", RF_KWARGS, self.NO_TF)
+    #
+    # def test_smoke_fit_ET_model(self):
+    #     self.inner("ET", ET_KWARGS, self.TF)
+    #     self.inner("ET", ET_KWARGS, self.NO_TF)
+    #
+    # def test_smoke_fit_GBM_model(self):
+    #     self.inner("GBM", GBM_KWARGS, self.TF)
+    #     self.inner("GBM", GBM_KWARGS, self.NO_TF)
+    #
+    # def test_smoke_fit_SGBM_model(self):
+    #     self.inner("GBM", SGBM_KWARGS, self.TF)
+    #     self.inner("GBM", SGBM_KWARGS, self.NO_TF)
+
+    def test_smoke_fit_XGB_model(self):
+        kwargs = XGB_KWARGS.copy()
+        kwargs['n_estimators'] = 500
+
+        self.inner2("XGB", kwargs, self.TF)
+        self.inner2("XGB", kwargs, self.NO_TF)
 
     def test_smoke_fit_stochastic_GBM_model_seed_None(self):
         self.inner("GBM", SGBM_KWARGS, self.TF, seed=None)

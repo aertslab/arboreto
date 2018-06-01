@@ -11,6 +11,8 @@ from dask import delayed
 from dask.dataframe import from_delayed
 from dask.dataframe.utils import make_meta
 
+from xgboost import XGBRegressor
+
 logger = logging.getLogger(__name__)
 
 DEMON_SEED = 666
@@ -20,7 +22,8 @@ EARLY_STOP_WINDOW_LENGTH = 25
 SKLEARN_REGRESSOR_FACTORY = {
     'RF': RandomForestRegressor,
     'ET': ExtraTreesRegressor,
-    'GBM': GradientBoostingRegressor
+    'GBM': GradientBoostingRegressor,
+    'XGB': XGBRegressor
 }
 
 # scikit-learn random forest regressor
@@ -50,6 +53,13 @@ SGBM_KWARGS = {
     'n_estimators': 5000,  # can be arbitrarily large
     'max_features': 0.1,
     'subsample': 0.9
+}
+
+XGB_KWARGS = {
+    'learning_rate': 0.01,
+    'max_depth': 3,
+    'colsample_bylevel': 0.1,
+    'n_jobs': 1
 }
 
 
@@ -207,7 +217,7 @@ def to_links_df(regressor_type,
     if is_sklearn_regressor(regressor_type):
         return pythonic()
     elif is_xgboost_regressor(regressor_type):
-        raise ValueError('XGB regressor not yet supported')
+        return pythonic()
     else:
         raise ValueError('Unsupported regressor type: ' + regressor_type)
 

@@ -40,9 +40,6 @@ if __name__ == '__main__':
     network_df = a.compute(sync=True)
     meta_df = b.compute(sync=True)
 
-    # Bad!
-    # network_df, meta_df = client.compute([network_graph, meta_graph], sync=True)
-
     if client:
         client.close()
 

@@ -4,7 +4,24 @@ Top-level functions.
 
 import pandas as pd
 from distributed import Client, LocalCluster
-from arboretum.core import create_graph, SGBM_KWARGS, RF_KWARGS
+from arboretum.core import create_graph, SGBM_KWARGS, RF_KWARGS, XGB_KWARGS
+
+
+def grnboost(expression_data,
+             n_estimators: int,
+             gene_names=None,
+             tf_names='all',
+             client_or_address='local',
+             limit=None,
+             seed=666,
+             verbose=False):
+
+    kwargs = XGB_KWARGS.copy()
+    kwargs['n_estimators'] = n_estimators
+
+    return diy(expression_data=expression_data, regressor_type='XGB', regressor_kwargs=kwargs,
+               gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address,
+               limit=limit, seed=seed, verbose=verbose)
 
 
 def grnboost2(expression_data,
