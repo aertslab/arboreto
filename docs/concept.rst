@@ -1,11 +1,11 @@
 Concept and Background
 ======================
 
-Arboretum was conceived to address the need for a faster alternative for the
+Arboreto was conceived to address the need for a faster alternative for the
 classic GENIE3 implementation for inferring gene regulatory networks from high-throughput
 gene expression profiles.
 
-.. (To understand arboretum, it is useful to understand GENIE3's strategy for inferring
+.. (To understand arboreto, it is useful to understand GENIE3's strategy for inferring
     gene regulatory networks.
     ... here we go again...)
 

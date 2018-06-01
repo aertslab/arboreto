@@ -4,7 +4,7 @@ Top-level functions.
 
 import pandas as pd
 from distributed import Client, LocalCluster
-from arboretum.core import create_graph, SGBM_KWARGS, RF_KWARGS
+from arboreto.core import create_graph, SGBM_KWARGS, RF_KWARGS
 
 
 def grnboost2(expression_data,
@@ -15,7 +15,7 @@ def grnboost2(expression_data,
               seed=None,
               verbose=False):
     """
-    Launch arboretum with [GRNBoost2] profile.
+    Launch arboreto with [GRNBoost2] profile.
 
     :param expression_data: one of:
            * a pandas DataFrame (rows=observations, columns=genes)
@@ -47,7 +47,7 @@ def genie3(expression_data,
            seed=None,
            verbose=False):
     """
-    Launch arboretum with [GENIE3] profile.
+    Launch arboreto with [GENIE3] profile.
 
     :param expression_data: one of:
            * a pandas DataFrame (rows=observations, columns=genes)

@@ -21,18 +21,18 @@ echo "td: " ${td}
 echo "scheduler address: " ${address}
 
 echo "macosko 40k subset with ${algo}"
-python run_arboretum.py --${algo} -a ${address} -i ${wd}macosko_40k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_40k_network.${algo}.tsv > ${td}/macosko_40k_log.${algo}.txt
+python run_arboreto.py --${algo} -a ${address} -i ${wd}macosko_40k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_40k_network.${algo}.tsv > ${td}/macosko_40k_log.${algo}.txt
 wait
 
 echo "macosko 30k subset with ${algo}"
-python run_arboretum.py --${algo} -a ${address} -i ${wd}macosko_30k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_30k_network.${algo}.tsv > ${td}/macosko_30k_log.${algo}.txt
+python run_arboreto.py --${algo} -a ${address} -i ${wd}macosko_30k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_30k_network.${algo}.tsv > ${td}/macosko_30k_log.${algo}.txt
 wait
 
 echo "macosko 20k subset with ${algo}"
-python run_arboretum.py --${algo} -a ${address} -i ${wd}macosko_20k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_20k_network.${algo}.tsv > ${td}/macosko_20k_log.${algo}.txt
+python run_arboreto.py --${algo} -a ${address} -i ${wd}macosko_20k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_20k_network.${algo}.tsv > ${td}/macosko_20k_log.${algo}.txt
 wait
 
 echo "macosko 10k subset with ${algo}"
-python run_arboretum.py --${algo} -a ${address} -i ${wd}macosko_10k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_10k_network.${algo}.tsv > ${td}/macosko_10k_log.${algo}.txt
+python run_arboreto.py --${algo} -a ${address} -i ${wd}macosko_10k.tsv.gz -tf ${wd}mm9_TFs.upper.txt -o ${td}/macosko_10k_network.${algo}.tsv > ${td}/macosko_10k_log.${algo}.txt
 
 echo "all subsets done with ${algo}"

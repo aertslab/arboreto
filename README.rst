@@ -1,19 +1,19 @@
-.. image:: img/arboretum.png
-    :alt: arboretum
+.. image:: img/arboreto.png
+    :alt: arboreto
     :scale: 100%
     :align: left
 
-.. image:: https://travis-ci.org/tmoerman/arboretum.svg?branch=master
+.. image:: https://travis-ci.org/tmoerman/arboreto.svg?branch=master
     :alt: Build Status
-    :target: https://travis-ci.org/tmoerman/arboretum
+    :target: https://travis-ci.org/tmoerman/arboreto
 
-.. image:: https://readthedocs.org/projects/arboretum/badge/?version=latest
+.. image:: https://readthedocs.org/projects/arboreto/badge/?version=latest
     :alt: Documentation Status
-    :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
+    :target: http://arboreto.readthedocs.io/en/latest/?badge=latest
 
 .. image:: https://img.shields.io/badge/pypi-0.1.3-blue.svg
     :alt: PyPI package
-    :target: https://pypi.python.org/pypi?:action=display&name=arboretum&version=0.1.3
+    :target: https://pypi.python.org/pypi?:action=display&name=arboreto&version=0.1.3
 
 ----
 
@@ -21,10 +21,10 @@
 
     *The most satisfactory definition of man from the scientific point of view is probably Man the Tool-maker.*
 
-.. _arboretum: https://arboretum.readthedocs.io
-.. _`arboretum documentation`: https://arboretum.readthedocs.io
-.. _notebooks: https://github.com/tmoerman/arboretum/tree/master/notebooks
-.. _issue: https://github.com/tmoerman/arboretum/issues/new
+.. _arboreto: https://arboreto.readthedocs.io
+.. _`arboreto documentation`: https://arboreto.readthedocs.io
+.. _notebooks: https://github.com/tmoerman/arboreto/tree/master/notebooks
+.. _issue: https://github.com/tmoerman/arboreto/issues/new
 
 .. _dask: https://dask.pydata.org/en/latest/
 .. _`dask distributed`: https://distributed.readthedocs.io/en/latest/
@@ -38,17 +38,17 @@
 Inferring a gene regulatory network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances
 in high-throughput gene profiling technology.
 
-The arboretum_ software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
+The arboreto_ software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
 exemplified by GENIE3_ [1] on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
 a series of steps, one for each target gene in the dataset, where the most important candidates from a set of regulators are determined from a regression
 model to predict a target gene's expression profile.
 
-Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboretum,
+Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboreto,
 we specify the parallelizable computation as a dask_ graph [2], a data structure that represents the task schedule of a computation. A dask scheduler assigns the
-tasks in a dask graph to the available computational resources. Arboretum uses the `dask distributed`_ scheduler to
+tasks in a dask graph to the available computational resources. Arboreto uses the `dask distributed`_ scheduler to
 spread out the computational tasks over multiple processes running on one or multiple machines.
 
-Arboretum currently supports 2 GRN inference algorithms:
+Arboreto currently supports 2 GRN inference algorithms:
 
 1. **GRNBoost2**: a novel and fast GRN inference algorithm using `Stochastic Gradient Boosting Machine`_ (SGBM) [3] regression with `early-stopping`_ regularization.
 2. **GENIE3**: the classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
@@ -64,9 +64,9 @@ References
 Get Started
 ***********
 
-Arboretum was conceived with the working bioinformatician or data scientist in mind. We provide extensive documentation and examples to help you get up to speed with the library.
+Arboreto was conceived with the working bioinformatician or data scientist in mind. We provide extensive documentation and examples to help you get up to speed with the library.
 
-* Read the `arboretum documentation`_.
+* Read the `arboreto documentation`_.
 * Browse example notebooks_.
 * Report an issue_.
 

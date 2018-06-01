@@ -1,5 +1,5 @@
 """
-Python script for Arboretum with command line interface support.
+Python script for Arboreto with command line interface support.
 """
 
 import argparse
@@ -7,8 +7,8 @@ import pandas as pd
 import time
 
 from pathlib import Path
-from arboretum.algo import genie3, grnboost2
-from arboretum.utils import load_tf_names
+from arboreto.algo import genie3, grnboost2
+from arboreto.utils import load_tf_names
 from distributed import Client
 
 parser = argparse.ArgumentParser()

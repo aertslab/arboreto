@@ -1,5 +1,5 @@
 """
-Tests for arboretum.core.
+Tests for arboreto.core.
 """
 
 from random import shuffle
@@ -9,8 +9,8 @@ from unittest import TestCase, skip
 import dask
 from distributed import Client, LocalCluster
 
-from arboretum.core import *
-from arboretum.utils import *
+from arboreto.core import *
+from arboreto.utils import *
 from tests import resources_path
 
 net1_ex_path = join(resources_path, 'dream5/net1/net1_expression_data.tsv')

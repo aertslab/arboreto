@@ -21,10 +21,10 @@ Q: How can I use the Dask diagnostics (bokeh) dashboard?
 Dask distributed features a nice `web interface`_ for monitoring the execution
 of a Dask computation graph.
 
-.. image:: https://github.com/tmoerman/arboretum/blob/master/img/daskboard.gif?raw=true
+.. image:: https://github.com/tmoerman/arboreto/blob/master/img/daskboard.gif?raw=true
     :alt: Dask diagnostics dashboard
 
-By default, when no custom Client is specified, Arboretum creates a LocalCluster_
+By default, when no custom Client is specified, Arboreto creates a LocalCluster_
 instance with the diagnostics dashboard **disabled**:
 
 .. code-block:: python
@@ -66,7 +66,7 @@ observations and columns represent features (in our case: genes), for example, s
 However, in some fields (like single-cell genomics), the default is inversed: the rows represent
 genes and the columns represent the observations.
 
-In order to maintain an API that is as lean is possible, Arboretum adopts
+In order to maintain an API that is as lean is possible, Arboreto adopts
 the scikit-learn convention (rows=observations, columns=features). This means that
 the user is responsible for providing the data in the right shape.
 
@@ -106,7 +106,7 @@ Both GENIE3_ and GRNBoost2_ are based on stochastic machine learning techniques,
 which use a random number generator internally to perform random sub-sampling of
 observations and features when building decision trees.
 
-To stabilize the output, Arboretum accepts a seed_ value that is used to initialize
+To stabilize the output, Arboreto accepts a seed_ value that is used to initialize
 the random number generator used by the machine learning algorithms.
 
 .. code-block:: python

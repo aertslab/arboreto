@@ -1,27 +1,27 @@
-.. image:: https://github.com/tmoerman/arboretum/blob/master/img/arboretum.png?raw=true
-    :alt: arboretum
+.. image:: https://github.com/tmoerman/arboreto/blob/master/img/arboreto.png?raw=true
+    :alt: arboreto
     :align: left
 
-.. image:: https://travis-ci.org/tmoerman/arboretum.svg?branch=master
+.. image:: https://travis-ci.org/tmoerman/arboreto.svg?branch=master
     :alt: Build Status
-    :target: https://travis-ci.org/tmoerman/arboretum
+    :target: https://travis-ci.org/tmoerman/arboreto
 
-.. image:: https://readthedocs.org/projects/arboretum/badge/?version=latest
+.. image:: https://readthedocs.org/projects/arboreto/badge/?version=latest
     :alt: Documentation Status
-    :target: http://arboretum.readthedocs.io/en/latest/?badge=latest
+    :target: http://arboreto.readthedocs.io/en/latest/?badge=latest
 
 .. image:: https://img.shields.io/badge/pypi-0.1.3-blue.svg
     :alt: PyPI package
-    :target: https://pypi.python.org/pypi?:action=display&name=arboretum&version=0.1.3
+    :target: https://pypi.python.org/pypi?:action=display&name=arboreto&version=0.1.3
 
 ----
 
-.. _arboretum: https://github.com/tmoerman/arboretum
-.. _`arboretum documentation`: https://arboretum.readthedocs.io
-.. _notebooks: https://github.com/tmoerman/arboretum/tree/master/notebooks
-.. _issue: https://github.com/tmoerman/arboretum/issues/new
-.. _github: https://github.com/tmoerman/arboretum
-.. _pypi: https://pypi.python.org/pypi/arboretum/
+.. _arboreto: https://github.com/tmoerman/arboreto
+.. _`arboreto documentation`: https://arboreto.readthedocs.io
+.. _notebooks: https://github.com/tmoerman/arboreto/tree/master/notebooks
+.. _issue: https://github.com/tmoerman/arboreto/issues/new
+.. _github: https://github.com/tmoerman/arboreto
+.. _pypi: https://pypi.python.org/pypi/arboreto/
 
 .. _dask: https://dask.pydata.org/en/latest/
 .. _`dask distributed`: https://distributed.readthedocs.io/en/latest/
@@ -49,19 +49,19 @@ in high-throughput gene profiling technology.
     * Source code at Github_
     * Releases at PyPI_
 
-The *Arboretum* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
+The *Arboreto* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
 exemplified by GENIE3_ [1]_ on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
 a series of steps, one for each target gene in the dataset, where the most important candidates from a set of regulators are determined from a regression
 model to predict a target gene's expression profile.
 
-Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboretum,
+Members of the above class of GRN inference algorithms are attractive from a computational point of view because they are parallelizable by nature. In arboreto,
 we specify the parallelizable computation as a Dask_ graph [2]_, a data structure that represents the task schedule of a computation. A Dask scheduler assigns the
-tasks in a Dask graph to the available computational resources. Arboretum uses the `Dask distributed`_ scheduler to
+tasks in a Dask graph to the available computational resources. Arboreto uses the `Dask distributed`_ scheduler to
 spread out the computational tasks over multiple processes running on one or multiple machines.
 
-Arboretum currently supports 2 `GRN inference algorithms`_:
+Arboreto currently supports 2 `GRN inference algorithms`_:
 
-1. **GRNBoost2**: fast GRN inference algorithm using `stochastic Gradient Boosting Machine`_ [3]_ regression with `early-stopping`_ regularization, the Arboretum flagship algorithm.
+1. **GRNBoost2**: fast GRN inference algorithm using `stochastic Gradient Boosting Machine`_ [3]_ regression with `early-stopping`_ regularization, the Arboreto flagship algorithm.
 
 2. **GENIE3**: the popular classic GRN inference algorithm using `Random Forest`_ (RF) or ExtraTrees_ (ET) regression.
 
@@ -72,8 +72,8 @@ Usage Example
 
     # import python modules
     import pandas as pd
-    from arboretum.utils import load_tf_names
-    from arboretum.algo import grnboost2
+    from arboreto.utils import load_tf_names
+    from arboreto.algo import grnboost2
 
     if __name__ == '__main__':
         # load the data
@@ -101,7 +101,7 @@ Check out more examples_.
 License
 =======
 
-.. _license: https://github.com/tmoerman/arboretum/blob/master/LICENSE.txt
+.. _license: https://github.com/tmoerman/arboreto/blob/master/LICENSE.txt
 
 BSD 3-Clause License_
 

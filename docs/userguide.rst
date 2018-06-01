@@ -24,21 +24,21 @@ User Guide
 Modules overview
 ----------------
 
-Arboretum consists of multiple python modules:
+Arboreto consists of multiple python modules:
 
-``arboretum.algo``
+``arboreto.algo``
 ~~~~~~~~~~~~~~~~~~
 
 * Intended for **typical users**.
 * Access point for launching GRNBoost2_ or GENIE3_ on local or distributed hardware.
 
-``arboretum.core``
+``arboreto.core``
 ~~~~~~~~~~~~~~~~~~
 
 * Intended for **advanced users**.
-* Contains the low-level building blocks of the Arboretum framework.
+* Contains the low-level building blocks of the Arboreto framework.
 
-``arboretum.utils``
+``arboreto.utils``
 ~~~~~~~~~~~~~~~~~~~
 
 * Contains small utility functions.
@@ -46,16 +46,16 @@ Arboretum consists of multiple python modules:
 Dependencies Overview
 ---------------------
 
-Arboretum uses well-established libraries from the Python ecosystem. Arboretum
+Arboreto uses well-established libraries from the Python ecosystem. Arboreto
 avoids being a proverbial "batteries-included" library, as such an approach often
-entails unnecessary complexity and maintenance. Arboretum aims at doing only one
+entails unnecessary complexity and maintenance. Arboreto aims at doing only one
 thing, and doing it well.
 
 Concretely, the user will be exposed to one or more of following dependencies:
 
 * Pandas_ or NumPy_: the user is expected to provide the input data in an expected format. Pandas_ and NumPy_ are well equipped with functions for data preprocessing.
-* Dask.distributed_: to run Arboretum on a cluster, the user is responsible for setting up a network of a scheduler and workers.
-* scikit-learn_: relevant for advanced users only. Arboretum can run "DIY" inference where the user provides their own parameters for the Random Forest or Gradient Boosting regressors.
+* Dask.distributed_: to run Arboreto on a cluster, the user is responsible for setting up a network of a scheduler and workers.
+* scikit-learn_: relevant for advanced users only. Arboreto can run "DIY" inference where the user provides their own parameters for the Random Forest or Gradient Boosting regressors.
 
 
 Input / Output
@@ -75,9 +75,9 @@ Input / Output
 * regulatory links
     * a Pandas_ DataFrame_ ``['TF', 'target', 'importance']``
 
-.. _`net1_expression_data.tsv`: https://github.com/tmoerman/arboretum/tree/master/resources/dream5/net1/net1_expression_data.tsv
-.. _`net1_transcription_factors.tsv`: https://github.com/tmoerman/arboretum/tree/master/resources/dream5/net1/net1_transcription_factors.tsv
-.. _resources: https://github.com/tmoerman/arboretum/tree/master/resources/
+.. _`net1_expression_data.tsv`: https://github.com/tmoerman/arboreto/tree/master/resources/dream5/net1/net1_expression_data.tsv
+.. _`net1_transcription_factors.tsv`: https://github.com/tmoerman/arboreto/tree/master/resources/dream5/net1/net1_transcription_factors.tsv
+.. _resources: https://github.com/tmoerman/arboreto/tree/master/resources/
 
 .. tip::
 
@@ -94,7 +94,7 @@ The input can be specified in a number of ways. Arguably the most straightforwar
 way is to specify the expression matrix as a Pandas_ DataFrame_, which also contains
 the gene names as the column header.
 
-.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/user_guide_figure1.png?raw=true
+.. figure:: https://github.com/tmoerman/arboreto/blob/master/img/user_guide_figure1.png?raw=true
     :alt: User Guide Figure 1
 
 In the following code snippet, we launch network inference with grnboost2_ by
@@ -105,14 +105,14 @@ specifying the ``expression_data`` as a DataFrame_.
     :emphasize-lines: 5
 
     import pandas as pd
-    from arboretum.utils import load_tf_names
-    from arboretum.algo import grnboost2
+    from arboreto.utils import load_tf_names
+    from arboreto.algo import grnboost2
 
     if __name__ == '__main__':
         # ex_matrix is a DataFrame with gene names as column names
         ex_matrix = pd.read_csv(<ex_path>, sep='\t')
 
-        # tf_names is read using a utility function included in Arboretum
+        # tf_names is read using a utility function included in Arboreto
         tf_names = load_tf_names(<tf_path>)
 
         network = grnboost2(expression_data=ex_matrix,
@@ -137,11 +137,11 @@ specifying the ``expression_data`` as a DataFrame_.
 Expression matrix as a NumPy ``ndarray``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Arboretum also supports specifying the expression matrix as a Numpy_ ndarray_
+Arboreto also supports specifying the expression matrix as a Numpy_ ndarray_
 (in our case: a 2-dimensional matrix). In this case, the gene names must be
 specified explicitly.
 
-.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/user_guide_figure2.png?raw=true
+.. figure:: https://github.com/tmoerman/arboreto/blob/master/img/user_guide_figure2.png?raw=true
     :alt: User Guide Figure 2
 
 .. caution::
@@ -154,8 +154,8 @@ specified explicitly.
     :caption: *Expression matrix as a NumPy ndarray*
 
     import numpy as np
-    from arboretum.utils import load_tf_names
-    from arboretum.algo import grnboost2
+    from arboreto.utils import load_tf_names
+    from arboreto.algo import grnboost2
 
     if __name__ == '__main__':
         # ex_matrix is a numpy ndarray, which has no notion of column names
@@ -168,7 +168,7 @@ specified explicitly.
         # sanity check to verify the ndarray's nr of columns equals the length of the gene_names list
         assert ex_matrix.shape[1] == len(gene_names)
 
-        # tf_names is read using a utility function included in Arboretum
+        # tf_names is read using a utility function included in Arboreto
         tf_names = load_tf_names(<tf_path>)
 
         network = grnboost2(expression_data=ex_matrix,
@@ -180,12 +180,12 @@ specified explicitly.
 Running with a custom Dask Client
 ---------------------------------
 
-Arboretum uses `Dask.distributed`_ to parallelize its workloads. When the user
-doesn't specify a dask distributed Client_ explicitly, Arboretum will create a
+Arboreto uses `Dask.distributed`_ to parallelize its workloads. When the user
+doesn't specify a dask distributed Client_ explicitly, Arboreto will create a
 LocalCluster_ and a Client_ pointing to it.
 
 Alternatively, you can create and configure your own Client_ instance and pass
-it on to Arboretum. Situations where this is useful include:
+it on to Arboreto. Situations where this is useful include:
 
 * inferring multiple networks from different datasets
 * inferring multiple networks using different parameters from the same dataset
@@ -200,8 +200,8 @@ and pass it to the different inference steps.
     :caption: *Running with a custom Dask Client*
 
     import pandas as pd
-    from arboretum.utils import load_tf_names
-    from arboretum.algo import grnboost2
+    from arboreto.utils import load_tf_names
+    from arboreto.algo import grnboost2
     from distributed import LocalCluster, Client
 
     if __name__ == '__main__':
@@ -236,7 +236,7 @@ and pass it to the different inference steps.
 Running with a Dask distributed scheduler
 -----------------------------------------
 
-Arboretum was designed to run gene regulatory network inference in a distributed
+Arboreto was designed to run gene regulatory network inference in a distributed
 setting. In distributed mode, some effort by the user or a systems administrator
 is required to `set up`_ a dask.distributed ``scheduler`` and some ``workers``.
 
@@ -247,7 +247,7 @@ is required to `set up`_ a dask.distributed ``scheduler`` and some ``workers``.
 
 Following diagram illustrates a possible topology of a Dask distributed cluster.
 
-.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/user_guide_figure3.png?raw=true
+.. figure:: https://github.com/tmoerman/arboreto/blob/master/img/user_guide_figure3.png?raw=true
     :alt: User Guide Figure 3
 
 * ``node_1`` runs a Python script, console or a Jupyter_ notebook server, a Client_ instance is configured with the TCP address of the distributed scheduler, running on ``node_2``
@@ -265,8 +265,8 @@ inference function.
     :caption: *Running with a Dask distributed scheduler*
 
     import pandas as pd
-    from arboretum.utils import load_tf_names
-    from arboretum.algo import grnboost2
+    from arboreto.utils import load_tf_names
+    from arboreto.algo import grnboost2
     from distributed import Client
 
     if __name__ == '__main__':

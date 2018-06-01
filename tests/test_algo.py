@@ -1,5 +1,5 @@
 """
-Tests for arboretum.algo.
+Tests for arboreto.algo.
 """
 
 from unittest import TestCase, skip
@@ -10,9 +10,9 @@ from scipy.sparse import csc_matrix
 from distributed import Client, LocalCluster
 from os.path import join
 
-from arboretum.algo import _prepare_input, _prepare_client
-from arboretum.algo import grnboost2, genie3
-from arboretum.utils import *
+from arboreto.algo import _prepare_input, _prepare_client
+from arboreto.algo import grnboost2, genie3
+from arboreto.utils import *
 from tests import resources_path
 
 

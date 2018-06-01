@@ -1,16 +1,16 @@
 """
-Python script for running Arboretum multiple times on the DREAM5 dataset,
+Python script for running Arboreto multiple times on the DREAM5 dataset,
 initialized with a different random seed for each run.
 
 The objective is to assess the stability of the inference quality of GRNBoost2
-compared with GENIE3/Arboretum and the GENIE3 results as reported in the Dream5 paper.
+compared with GENIE3/Arboreto and the GENIE3 results as reported in the Dream5 paper.
 """
 
 import pandas as pd
 import time
 
-from arboretum.algo import genie3, grnboost2
-from arboretum.utils import load_tf_names
+from arboreto.algo import genie3, grnboost2
+from arboreto.utils import load_tf_names
 from distributed import Client
 
 DEFAULT_N_RUNS = 100

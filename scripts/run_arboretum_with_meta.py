@@ -6,8 +6,8 @@ import pandas as pd
 import time
 import sys
 
-from arboretum.utils import load_tf_names
-from arboretum.algo import *
+from arboreto.utils import load_tf_names
+from arboreto.algo import *
 from distributed import Client
 
 if __name__ == '__main__':

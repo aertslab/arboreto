@@ -55,10 +55,10 @@ hpc2-big7   r6i1n13     2x 12-core (48 threads)     512 GB
 
 The aliases are the ones defined by the ``https://git.aertslab.org/connect_to_servers/`` script.
 
-Running Arboretum on the front nodes
+Running Arboreto on the front nodes
 ------------------------------------
 
-Following section describes the steps requires for inferring a GRN using Arboretum
+Following section describes the steps requires for inferring a GRN using Arboreto
 in distributed mode, using the front nodes.
 
 .. tip::
@@ -76,10 +76,10 @@ in distributed mode, using the front nodes.
 We will set up a cluster using about half the CPU resources of the 5 larger nodes
 (``hpc2-big3`` to ``hpc2-big7``). One of the large nodes will also host the
 Dask scheduler. One a smaller node, we run a Jupyter_ notebook server from which we
-run the GRN inference using Arboretum.
+run the GRN inference using Arboreto.
 
 
-.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/lcb/distributed.png?raw=true
+.. figure:: https://github.com/tmoerman/arboreto/blob/master/img/lcb/distributed.png?raw=true
     :alt: LCB front nodes distributed architecture
     :align: center
 
@@ -96,19 +96,19 @@ On the front nodes we do this by loading a module:
 
     $ module load Anaconda/5-Python-3.6
 
-We obviously need Arboretum (make sure you have the latest version):
+We obviously need Arboreto (make sure you have the latest version):
 
 .. code-block:: bash
     :caption: ``vsc12345@r6i0n5``
 
-    $ pip install arboretum
+    $ pip install arboreto
 
-    $ pip show arboretum
+    $ pip show arboreto
 
-    Name: arboretum
+    Name: arboreto
     Version: 0.1.3
     Summary: Scalable gene regulatory network inference using tree-based ensemble regressors
-    Home-page: https://github.com/tmoerman/arboretum
+    Home-page: https://github.com/tmoerman/arboreto
     Author: Thomas Moerman
     Author-email: thomas.moerman@gmail.com
     License: BSD 3-Clause License
@@ -181,7 +181,7 @@ The command above consists of several parts, let's briefly discuss them:
 
 * ``dask-worker tcp://10.118.224.134:8786 --nprocs 24 --nthreads 1``
 
-    Spins up 24 worker processes with 1 thread per process. For Arboretum, it is
+    Spins up 24 worker processes with 1 thread per process. For Arboreto, it is
     recommended to always set ``--nthreads 1``.
 
     In this case we have chosen 24 processes because we planned to use only half
@@ -217,7 +217,7 @@ We now repeat the same command on the other compute nodes that will run Dask wor
 
     $ nice -n 10 dask-worker tcp://10.118.224.134:8786 --nprocs 24 --nthreads 1
 
-3. Running Arboretum from a Jupyter notebook
+3. Running Arboreto from a Jupyter notebook
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 So far, we have a scheduler running with 5*24 worker processes connected to it and
@@ -260,10 +260,10 @@ To access the notebook open a browser and navigate to following url:
 .. note::
 
     Using Jupyter is **entirely optional**. Everything explained in the following
-    section is equally applicable to running Arboretum from a simple Python session
+    section is equally applicable to running Arboreto from a simple Python session
     or script.
 
-    As an example, please consider `this script <https://github.com/tmoerman/arboretum/blob/master/scripts/run_arboretum.py>`_. Remember that the main code
+    As an example, please consider `this script <https://github.com/tmoerman/arboreto/blob/master/scripts/run_arboreto.py>`_. Remember that the main code
     should be in a code block protected by:
 
     .. code-block:: python
@@ -294,8 +294,8 @@ to check whether the cluster was set up correctly:
         * Cores: 120
         * Memory: 1354.63 GB
 
-The cluster is set up and ready for Arboretum GRN inference work. Please review
-the section `Running with a Dask distributed scheduler`_ on how to use Arboretum in distributed mode.
+The cluster is set up and ready for Arboreto GRN inference work. Please review
+the section `Running with a Dask distributed scheduler`_ on how to use Arboreto in distributed mode.
 
 To run in distributed mode, we need to make one modification to the code launching
 the inference algorithm: specifying ``client_or_address`` in the (in this case) ``genie3`` function:
@@ -311,10 +311,10 @@ While our computation is running, we can consult the Dask `diagnostics dashboard
 to monitor progress. Point a browser to ``localhost:8787/status``, you should see
 a dynamic visualization like this:
 
-.. figure:: https://github.com/tmoerman/arboretum/blob/master/img/lcb/dashboard_front_nodes.png?raw=true
+.. figure:: https://github.com/tmoerman/arboreto/blob/master/img/lcb/dashboard_front_nodes.png?raw=true
     :align: center
 
-    Dask diagnostics dashboard visualizing Arboretum progress
+    Dask diagnostics dashboard visualizing Arboreto progress
 
 Note the progress gauges in the bottom:
 

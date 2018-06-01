@@ -4,7 +4,7 @@
 GRN Inference Algorithms
 ========================
 
-Arboretum hosts multiple (currently 2, contributions welcome!) algorithms for
+Arboreto hosts multiple (currently 2, contributions welcome!) algorithms for
 inference of gene regulatory networks from high-throughput gene expression data,
 for example *single-cell RNA-seq* data.
 
@@ -12,7 +12,7 @@ GRNBoost2
 ---------
 
 GRNBoost2 is the flagship algorithm for gene regulatory network inference, hosted
-in the Arboretum framework. It was conceived as a fast alternative for GENIE3_,
+in the Arboreto framework. It was conceived as a fast alternative for GENIE3_,
 in order to alleviate the processing time required for larger datasets (tens of
 thousands of observations).
 
