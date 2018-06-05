@@ -4,13 +4,14 @@ Top-level functions.
 
 import pandas as pd
 from distributed import Client, LocalCluster
-from arboreto.core import create_graph, SGBM_KWARGS, RF_KWARGS
+from arboreto.core import create_graph, SGBM_KWARGS, RF_KWARGS, EARLY_STOP_WINDOW_LENGTH
 
 
 def grnboost2(expression_data,
               gene_names=None,
               tf_names='all',
               client_or_address='local',
+              early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
               limit=None,
               seed=None,
               verbose=False):
@@ -28,6 +29,7 @@ def grnboost2(expression_data,
            * None or 'local': a new Client(LocalCluster()) will be used to perform the computation.
            * string address: a new Client(address) will be used to perform the computation.
            * a Client instance: the specified Client instance will be used to perform the computation.
+    :param early_stop_window_length: early stop window length. Default 25.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default None.
     :param verbose: print info.
@@ -36,7 +38,7 @@ def grnboost2(expression_data,
 
     return diy(expression_data=expression_data, regressor_type='GBM', regressor_kwargs=SGBM_KWARGS,
                gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address,
-               limit=limit, seed=seed, verbose=verbose)
+               early_stop_window_length=early_stop_window_length, limit=limit, seed=seed, verbose=verbose)
 
 
 def genie3(expression_data,
@@ -77,6 +79,7 @@ def diy(expression_data,
         gene_names=None,
         tf_names='all',
         client_or_address='local',
+        early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
         limit=None,
         seed=None,
         verbose=False):
@@ -90,6 +93,7 @@ def diy(expression_data,
     :param gene_names: optional list of gene names (strings). Required when a (dense or sparse) matrix is passed as
                        'expression_data' instead of a DataFrame.
     :param tf_names: optional list of transcription factors. If None or 'all', the list of gene_names will be used.
+    :param early_stop_window_length: early stopping window length.
     :param client_or_address: one of:
            * None or 'local': a new Client(LocalCluster()) will be used to perform the computation.
            * string address: a new Client(address) will be used to perform the computation.
@@ -119,6 +123,7 @@ def diy(expression_data,
                              client=client,
                              regressor_type=regressor_type,
                              regressor_kwargs=regressor_kwargs,
+                             early_stop_window_length=early_stop_window_length,
                              limit=limit,
                              seed=seed)
 
