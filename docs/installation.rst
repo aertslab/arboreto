@@ -48,7 +48,7 @@ Check out the installation:
     $ pip show arboreto
 
     Name: arboreto
-    Version: 0.1.3
+    Version: 0.1.4
     Summary: Scalable gene regulatory network inference using tree-based ensemble regressors
     Home-page: https://github.com/tmoerman/arboreto
     Author: Thomas Moerman
