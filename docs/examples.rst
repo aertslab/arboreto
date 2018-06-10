@@ -15,8 +15,6 @@ Python script
 
 * Example `python script`_ running GRNBoost2 on files located in the same folder.
 
-    Run as a classic python script: ``python run_grnboost2`` from the ``<arboreto repo>/resources/dream5/net1`` folder.
-
     .. code-block:: python
         :caption: *<arboreto repo>/resources/dream5/net1/run_grnboost2.py*
 
@@ -48,6 +46,14 @@ Python script
 
             # write the GRN to file
             network.to_csv(out_file, sep='\t', index=False, header=False)
+
+
+    Run as a classic python script:
+
+    .. code-block:: bash
+
+        cd <arboreto repo>/resources/dream5/net1
+        python run_grnboost2
 
 
 Jupyter notebooks
