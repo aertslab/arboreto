@@ -1,15 +1,24 @@
 
-.. _`Example 01 - GRNBoost2 local`: https://github.com/tmoerman/arboreto/blob/master/notebooks/examples/ex_01_grnboost2_local.ipynb
-.. _`Example 02 - GRNBoost2 with custom Dask Client`: https://github.com/tmoerman/arboreto/blob/master/notebooks/examples/ex_02_grnboost2_custom_client.ipynb
-.. _`Example 03 - GRNBoost2 with transposed input file`: https://github.com/tmoerman/arboreto/blob/master/notebooks/examples/ex_03_grnboost2_transposed_input_file.ipynb
+.. _`Example 01 - GRNBoost2 local`: https://nbviewer.jupyter.org/github/tmoerman/arboreto/blob/master/notebooks/examples/ex_01_grnboost2_local.ipynb
+.. _`Example 02 - GRNBoost2 with custom Dask Client`: https://nbviewer.jupyter.org/github/tmoerman/arboreto/blob/master/notebooks/examples/ex_02_grnboost2_custom_client.ipynb
+.. _`Example 03 - GRNBoost2 with transposed input file`: https://nbviewer.jupyter.org/github/tmoerman/arboreto/blob/master/notebooks/examples/ex_03_grnboost2_transposed_input_file.ipynb
+.. _`Jupyter nbviewer`: https://nbviewer.jupyter.org/
 .. _pandas: https://pandas.pydata.org/
 .. _DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
 
 Examples
 ========
 
+Python scripts
+--------------
+
+* TODO
+
+Jupyter notebooks
+-----------------
+
 Following are links to example Jupyter notebooks that illustrate different
-Arboreto usage scenarios.
+Arboreto usage scenarios (links render notebooks in `Jupyter nbviewer`_).
 
 * `Example 01 - GRNBoost2 local`_
 
