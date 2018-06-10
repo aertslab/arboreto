@@ -62,7 +62,7 @@ class ToTFMatrixTests(TestCase):
         self.assertEquals(net1_tf_matrix.shape, (805, 195))
 
 
-class InferDataTests(TestCase):
+class InferPartialNetworkTests(TestCase):
 
     TF = 0
     NO_TF = 200
@@ -71,14 +71,14 @@ class InferDataTests(TestCase):
         target_gene_name = net1_gene_names[target_idx]
         target_gene_expression = net1_ex_matrix[:, target_idx]
 
-        links_df, meta_df = infer_data(regressor_type,
-                                       regressor_kwargs,
-                                       net1_tf_matrix,
-                                       net1_tf_matrix_gene_names,
-                                       target_gene_name,
-                                       target_gene_expression,
-                                       include_meta=True,
-                                       seed=seed)
+        links_df, meta_df = infer_partial_network(regressor_type,
+                                                  regressor_kwargs,
+                                                  net1_tf_matrix,
+                                                  net1_tf_matrix_gene_names,
+                                                  target_gene_name,
+                                                  target_gene_expression,
+                                                  include_meta=True,
+                                                  seed=seed)
 
         self.assertEqual(meta_df['target'][0], target_gene_name)
 

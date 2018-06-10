@@ -267,15 +267,15 @@ def retry(fn, max_retries=10, warning_msg=None, fallback_result=None):
     return result
 
 
-def infer_data(regressor_type,
-               regressor_kwargs,
-               tf_matrix,
-               tf_matrix_gene_names,
-               target_gene_name,
-               target_gene_expression,
-               include_meta=False,
-               early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
-               seed=DEMON_SEED):
+def infer_partial_network(regressor_type,
+                          regressor_kwargs,
+                          tf_matrix,
+                          tf_matrix_gene_names,
+                          target_gene_name,
+                          target_gene_expression,
+                          include_meta=False,
+                          early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
+                          seed=DEMON_SEED):
     """
     Ties together regressor model training with regulatory links and meta data extraction.
 
@@ -408,7 +408,7 @@ def create_graph(expression_matrix,
         target_gene_expression = expression_matrix[:, target_gene_index]
 
         if include_meta:
-            delayed_link_df, delayed_meta_df = delayed(infer_data, pure=True, nout=2)(
+            delayed_link_df, delayed_meta_df = delayed(infer_partial_network, pure=True, nout=2)(
                 regressor_type, regressor_kwargs,
                 delayed_or_future_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
@@ -417,7 +417,7 @@ def create_graph(expression_matrix,
                 delayed_link_dfs.append(delayed_link_df)
                 delayed_meta_dfs.append(delayed_meta_df)
         else:
-            delayed_link_df = delayed(infer_data, pure=True)(
+            delayed_link_df = delayed(infer_partial_network, pure=True)(
                 regressor_type, regressor_kwargs,
                 delayed_or_future_tf_matrix, delayed_tf_matrix_gene_names,
                 target_gene_name, target_gene_expression, include_meta, early_stop_window_length, seed)
