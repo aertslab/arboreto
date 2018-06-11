@@ -7,7 +7,7 @@ setup(
     long_description=open('README.rst').read(),
     url='https://github.com/tmoerman/arboreto',
     download_url='https://github.com/tmoerman/arboreto/archive/0.1.tar.gz',
-    version='0.1.4',
+    version='0.1.5',
     license='BSD 3-Clause License',
     author='Thomas Moerman',
     author_email='thomas.moerman@gmail.com',

@@ -128,6 +128,7 @@ def diy(expression_data,
                              seed=seed)
 
         if verbose:
+            print('{} partitions'.format(graph.npartitions))
             print('computing dask graph')
 
         return client \

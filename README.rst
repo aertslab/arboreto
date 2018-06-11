@@ -11,9 +11,9 @@
     :alt: Documentation Status
     :target: http://arboreto.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/badge/pypi-0.1.4-blue.svg
+.. image:: https://img.shields.io/badge/pypi-0.1.5-blue.svg
     :alt: PyPI package
-    :target: https://pypi.python.org/pypi?:action=display&name=arboreto&version=0.1.4
+    :target: https://pypi.python.org/pypi?:action=display&name=arboreto&version=0.1.5
 
 ----
 

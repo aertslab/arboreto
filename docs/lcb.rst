@@ -106,7 +106,7 @@ We obviously need Arboreto (make sure you have the latest version):
     $ pip show arboreto
 
     Name: arboreto
-    Version: 0.1.4
+    Version: 0.1.5
     Summary: Scalable gene regulatory network inference using tree-based ensemble regressors
     Home-page: https://github.com/tmoerman/arboreto
     Author: Thomas Moerman
