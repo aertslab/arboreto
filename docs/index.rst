@@ -10,6 +10,10 @@
     :alt: Documentation Status
     :target: http://arboreto.readthedocs.io/en/latest/?badge=latest
 
+.. image:: https://img.shields.io/badge/bioconda-0.1.5-blue.svg
+    :alt: Bioconda package
+    :target: https://anaconda.org/bioconda/arboreto
+
 .. image:: https://img.shields.io/badge/pypi-0.1.5-blue.svg
     :alt: PyPI package
     :target: https://pypi.python.org/pypi?:action=display&name=arboreto&version=0.1.5
@@ -22,6 +26,7 @@
 .. _issue: https://github.com/tmoerman/arboreto/issues/new
 .. _github: https://github.com/tmoerman/arboreto
 .. _pypi: https://pypi.python.org/pypi/arboreto/
+.. _bioconda: https://anaconda.org/bioconda/arboreto
 
 .. _dask: https://dask.pydata.org/en/latest/
 .. _`dask distributed`: https://distributed.readthedocs.io/en/latest/
@@ -47,7 +52,7 @@ in high-throughput gene profiling technology.
     * `User guide`_
     * Report an issue_
     * Source code at Github_
-    * Releases at PyPI_
+    * Releases at Bioconda_ and PyPI_
 
 The *Arboreto* software library addresses this issue by providing a computational strategy that allows executing the class of GRN inference algorithms
 exemplified by GENIE3_ [1]_ on hardware ranging from a single computer to a multi-node compute cluster. This class of GRN inference algorithms is defined by
@@ -105,6 +110,17 @@ License
 
 BSD 3-Clause License_
 
+pySCENIC
+========
+
+.. _pySCENIC: https://github.com/aertslab/pySCENIC
+.. _SCENIC: https://aertslab.org/#scenic
+
+Arboreto is a component in pySCENIC_: a lightning-fast python implementation of
+the SCENIC_ pipeline [5]_ (Single-Cell rEgulatory Network Inference and Clustering)
+which enables biologists to infer transcription factors, gene regulatory networks
+and cell types from single-cell RNA-seq data.
+
 References
 ==========
 
@@ -112,6 +128,7 @@ References
 .. [2] Rocklin, M. (2015). Dask: parallel computation with blocked algorithms and task scheduling. In Proceedings of the 14th Python in Science Conference (pp. 130-136).
 .. [3] Friedman, J. H. (2002). Stochastic gradient boosting. Computational Statistics & Data Analysis, 38(4), 367-378.
 .. [4] Marbach, D., Costello, J. C., Kuffner, R., Vega, N. M., Prill, R. J., Camacho, D. M., ... & Dream5 Consortium. (2012). Wisdom of crowds for robust gene network inference. Nature methods, 9(8), 796-804.
+.. [5] Aibar S, Bravo Gonzalez-Blas C, Moerman T, Wouters J, Huynh-Thu VA, Imrichova H, Kalender Atak Z, Hulselmans G, Dewaele M, Rambow F, Geurts P, Aerts J, Marine C, van den Oord J, Aerts S. SCENIC: Single-cell regulatory network inference and clustering. Nature Methods 14, 1083–1086 (2017). doi: 10.1038/nmeth.4463
 
 .. toctree::
     :maxdepth: 2
