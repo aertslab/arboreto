@@ -49,6 +49,63 @@ software realized as a channel for the versatile conda_ package manager.
   $ conda install -c bioconda arboreto
 
 
+Install into a new conda environment
+************************************
+
+.. _conda environment: https://conda.io/docs/user-guide/tasks/manage-environments.html#
+..
+
+You can easily install arboreto into a fresh `conda environment`_.
+See [1]_ for a better understanding of the how and what of Python environments.
+
+Following code snippet creates a new conda environment called "arboreto-env"
+and installs arboreto and all its dependencies into that environment.
+
+.. code-block:: bash
+
+  # create the conda environment named "arboreto-env"
+  $ conda create --name arboreto-env
+
+  # activate the conda environment we just created
+  $ source activate arboreto-env
+
+  # note: your terminal will indicate which environment is active on the left
+  (arboreto-env) $ ...
+
+  # install arboreto into the "arboreto-env" environment (hit Y to proceed)
+  (arboreto-env) $ conda install -c bioconda arboreto
+
+.. You can now (for example) start an ipython session and use arboreto interactively.
+
+..  .. code-block:: bash
+..   (arboreto-env) $ ipython
+..
+..       Python 3.5.5 |Anaconda custom (64-bit)| (default, Mar 12 2018, 23:12:44)
+..       Type 'copyright', 'credits' or 'license' for more information
+..       IPython 6.2.1 -- An enhanced Interactive Python. Type '?' for help.
+..
+..       In [1]: from arboreto.algo import grnboost2
+..
+..       In [2]: ...
+..
+..       # when you're done in the ipython session
+..       In [666] exit()
+
+
+When you're done, deactivate the "arboreto-env" environment as follows:
+
+.. code-block:: bash
+
+  # deactivate the current environment
+  (arboreto-env) $ source deactivate
+
+  # as you will see: the environment indication has disappeared.
+  $ ...
+
+
+.. [1] Why you need Python environments and how to manage them with Conda -- Gergely Szerovay
+
+
 Install using pip
 -----------------
 
