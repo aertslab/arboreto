@@ -103,7 +103,9 @@ When you're done, deactivate the "arboreto-env" environment as follows:
   $ ...
 
 
-.. [1] Why you need Python environments and how to manage them with Conda -- Gergely Szerovay
+.. __: https://medium.freecodecamp.org/why-you-need-python-environments-and-how-to-manage-them-with-conda-85f155f4353c
+
+.. [1] `Why you need Python environments and how to manage them with Conda -- Gergely Szerovay`__
 
 
 Install using pip
