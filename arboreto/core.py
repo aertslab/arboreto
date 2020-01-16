@@ -10,6 +10,8 @@ from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, E
 from dask import delayed
 from dask.dataframe import from_delayed
 from dask.dataframe.utils import make_meta
+from multiprocessing import Pool, cpu_count
+from itertools import repeat
 
 logger = logging.getLogger(__name__)
 
@@ -448,6 +450,78 @@ def create_graph(expression_matrix,
                all_meta_df.repartition(npartitions=n_parts)
     else:
         return maybe_limited_links_df.repartition(npartitions=n_parts)
+
+
+def run_infer_partial_network(target_gene_index,
+                              gene_names,
+                              expression_matrix,
+                              regressor_type,
+                              regressor_kwargs,
+                              tf_matrix,
+                              tf_matrix_gene_names,
+                              seed):
+    """
+    Wrapper function to run arboreto on a single target gene. Used in the multiprocessing step.
+    """
+    target_gene_name = gene_names[target_gene_index]
+    target_gene_expression = expression_matrix[:, target_gene_index]
+
+    n = infer_partial_network(
+        regressor_type=regressor_type,
+        regressor_kwargs=regressor_kwargs,
+        tf_matrix=tf_matrix,
+        tf_matrix_gene_names=tf_matrix_gene_names,
+        target_gene_name=target_gene_name,
+        target_gene_expression=target_gene_expression,
+        include_meta=False,
+        early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
+        seed=seed)
+
+    return n
+
+
+def run_arboreto_mp(expression_matrix,
+                    tf_names,
+                    regressor_type,
+                    regressor_kwargs,
+                    gene_names=None,
+                    target_genes='all',
+                    client_or_address='multiprocessing',
+                    multiprocessing_workers=cpu_count(),
+                    early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
+                    limit=None,
+                    seed=None):
+    """
+    Runs arboreto using a multiprocessing pool in place of Dask.
+    :param expression_matrix: numpy matrix. Rows are observations and columns are genes.
+    :param regressor_type: string. Case insensitive.
+    :param regressor_kwargs: dict of key-value pairs that configures the regressor.
+    :param gene_names: list of gene names.
+    :param tf_names: list of transcription factor names. Should have a non-empty intersection with gene_names.
+    :param target_genes: either int, 'all' or a collection that is a subset of gene_names.
+    :param client_or_address: must be set to 'multiprocessing' here.
+    :param multiprocessing_workers: Number of processes to use. Applies only when using client_or_address='multiprocessing'. Defaults to the total number of system CPUs.
+    :param early_stop_window_length: window length of the early stopping monitor.
+    :param limit: optional number of top regulatory links to return. Default None.
+    :param seed: (optional) random seed for the regressors.
+    """
+    assert client_or_address == 'multiprocessing'
+
+    tf_matrix, tf_matrix_gene_names = to_tf_matrix(expression_matrix, gene_names, tf_names)
+
+    with Pool(multiprocessing_workers) as p:
+        links = p.starmap(run_infer_partial_network,
+                      zip(target_gene_indices(gene_names, target_genes=target_genes),
+                          repeat(gene_names),
+                          repeat(expression_matrix),
+                          repeat(regressor_type),
+                          repeat(regressor_kwargs),
+                          repeat(tf_matrix),
+                          repeat(tf_matrix_gene_names),
+                          repeat(seed)
+                          ))
+
+    return links
 
 
 class EarlyStopMonitor:

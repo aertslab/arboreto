@@ -5,12 +5,15 @@ Top-level functions.
 import pandas as pd
 from distributed import Client, LocalCluster
 from arboreto.core import create_graph, SGBM_KWARGS, RF_KWARGS, EARLY_STOP_WINDOW_LENGTH
+from multiprocessing import cpu_count
+from arboreto.core import run_arboreto_mp
 
 
 def grnboost2(expression_data,
               gene_names=None,
               tf_names='all',
               client_or_address='local',
+              multiprocessing_workers=cpu_count(),
               early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
               limit=None,
               seed=None,
@@ -29,6 +32,8 @@ def grnboost2(expression_data,
            * None or 'local': a new Client(LocalCluster()) will be used to perform the computation.
            * string address: a new Client(address) will be used to perform the computation.
            * a Client instance: the specified Client instance will be used to perform the computation.
+           * 'multiprocessing': Bypasses Dask and performs the computation using a multiprocessing pool.
+    :param multiprocessing_workers: Number of processes to use. Applies only when using client_or_address='multiprocessing'. Defaults to the total number of system CPUs.
     :param early_stop_window_length: early stop window length. Default 25.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default None.
@@ -38,6 +43,7 @@ def grnboost2(expression_data,
 
     return diy(expression_data=expression_data, regressor_type='GBM', regressor_kwargs=SGBM_KWARGS,
                gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address,
+               multiprocessing_workers=multiprocessing_workers,
                early_stop_window_length=early_stop_window_length, limit=limit, seed=seed, verbose=verbose)
 
 
@@ -45,6 +51,7 @@ def genie3(expression_data,
            gene_names=None,
            tf_names='all',
            client_or_address='local',
+           multiprocessing_workers=cpu_count(),
            limit=None,
            seed=None,
            verbose=False):
@@ -62,6 +69,8 @@ def genie3(expression_data,
            * None or 'local': a new Client(LocalCluster()) will be used to perform the computation.
            * string address: a new Client(address) will be used to perform the computation.
            * a Client instance: the specified Client instance will be used to perform the computation.
+           * 'multiprocessing': Bypasses Dask and performs the computation using a multiprocessing pool.
+    :param multiprocessing_workers: Number of processes to use. Applies only when using client_or_address='multiprocessing'. Defaults to the total number of system CPUs.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default None.
     :param verbose: print info.
@@ -69,6 +78,7 @@ def genie3(expression_data,
     """
 
     return diy(expression_data=expression_data, regressor_type='RF', regressor_kwargs=RF_KWARGS,
+               multiprocessing_workers=multiprocessing_workers,
                gene_names=gene_names, tf_names=tf_names, client_or_address=client_or_address,
                limit=limit, seed=seed, verbose=verbose)
 
@@ -79,6 +89,7 @@ def diy(expression_data,
         gene_names=None,
         tf_names='all',
         client_or_address='local',
+        multiprocessing_workers=cpu_count(),
         early_stop_window_length=EARLY_STOP_WINDOW_LENGTH,
         limit=None,
         seed=None,
@@ -98,15 +109,18 @@ def diy(expression_data,
            * None or 'local': a new Client(LocalCluster()) will be used to perform the computation.
            * string address: a new Client(address) will be used to perform the computation.
            * a Client instance: the specified Client instance will be used to perform the computation.
+           * 'multiprocessing': Bypasses Dask and performs the computation using a multiprocessing pool.
+    :param multiprocessing_workers: Number of processes to use. Applies only when using client_or_address='multiprocessing'. Defaults to the total number of system CPUs.
     :param limit: optional number (int) of top regulatory links to return. Default None.
     :param seed: optional random seed for the regressors. Default 666. Use None for random seed.
     :param verbose: print info.
     :return: a pandas DataFrame['TF', 'target', 'importance'] representing the inferred gene regulatory links.
     """
-    if verbose:
-        print('preparing dask client')
+    if str(client_or_address).lower() != 'multiprocessing':
+        if verbose:
+            print('preparing dask client')
 
-    client, shutdown_callback = _prepare_client(client_or_address)
+        client, shutdown_callback = _prepare_client(client_or_address)
 
     try:
         if verbose:
@@ -114,29 +128,45 @@ def diy(expression_data,
 
         expression_matrix, gene_names, tf_names = _prepare_input(expression_data, gene_names, tf_names)
 
-        if verbose:
-            print('creating dask graph')
+        if str(client_or_address).lower() != 'multiprocessing':
+            if verbose:
+                print('creating dask graph')
 
-        graph = create_graph(expression_matrix,
-                             gene_names,
-                             tf_names,
-                             client=client,
-                             regressor_type=regressor_type,
-                             regressor_kwargs=regressor_kwargs,
-                             early_stop_window_length=early_stop_window_length,
-                             limit=limit,
-                             seed=seed)
+            graph = create_graph(expression_matrix,
+                                 gene_names,
+                                 tf_names,
+                                 client=client,
+                                 regressor_type=regressor_type,
+                                 regressor_kwargs=regressor_kwargs,
+                                 early_stop_window_length=early_stop_window_length,
+                                 limit=limit,
+                                 seed=seed)
 
-        if verbose:
-            print('{} partitions'.format(graph.npartitions))
-            print('computing dask graph')
+            if verbose:
+                print('{} partitions'.format(graph.npartitions))
+                print('computing dask graph')
 
-        return client \
-            .compute(graph, sync=True) \
-            .sort_values(by='importance', ascending=False)
+            return client \
+                .compute(graph, sync=True) \
+                .sort_values(by='importance', ascending=False)
+        else:
+            if verbose:
+                print('Running multiprocessing with {} processes'.format(multiprocessing_workers))
+            links = run_arboreto_mp(expression_matrix=expression_matrix,
+                                    tf_names=tf_names,
+                                    regressor_type=regressor_type,
+                                    regressor_kwargs=regressor_kwargs,
+                                    gene_names=gene_names,
+                                    multiprocessing_workers=multiprocessing_workers,
+                                    early_stop_window_length=early_stop_window_length,
+                                    limit=limit,
+                                    seed=seed)
+
+            return pd.concat(links).sort_values(by='importance', ascending=False)
 
     finally:
-        shutdown_callback(verbose)
+        if str(client_or_address).lower() != 'multiprocessing':
+            shutdown_callback(verbose)
 
         if verbose:
             print('finished')
