@@ -509,17 +509,23 @@ def run_arboreto_mp(expression_matrix,
 
     tf_matrix, tf_matrix_gene_names = to_tf_matrix(expression_matrix, gene_names, tf_names)
 
+    kwargs = {
+            'gene_names': gene_names,
+            'expression_matrix': expression_matrix,
+            'regressor_type': regressor_type,
+            'regressor_kwargs': regressor_kwargs,
+            'tf_matrix': tf_matrix,
+            'tf_matrix_gene_names': tf_matrix_gene_names,
+            'seed': seed
+            }
+
     with Pool(multiprocessing_workers) as p:
         links = p.starmap(run_infer_partial_network,
-                      zip(target_gene_indices(gene_names, target_genes=target_genes),
-                          repeat(gene_names),
-                          repeat(expression_matrix),
-                          repeat(regressor_type),
-                          repeat(regressor_kwargs),
-                          repeat(tf_matrix),
-                          repeat(tf_matrix_gene_names),
-                          repeat(seed)
-                          ))
+                          [[x,*y.values()] for x,y in
+                              zip(target_gene_indices(gene_names, target_genes=target_genes),
+                                  repeat(kwargs)
+                              )
+                          ])
 
     return links
 
