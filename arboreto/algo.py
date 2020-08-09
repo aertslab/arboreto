@@ -211,7 +211,7 @@ def _prepare_input(expression_data,
     """
 
     if isinstance(expression_data, pd.DataFrame):
-        expression_matrix = expression_data.as_matrix()
+        expression_matrix = expression_data.to_numpy()
         gene_names = list(expression_data.columns)
     else:
         expression_matrix = expression_data
