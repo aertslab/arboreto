@@ -1,5 +1,4 @@
-dask
-dask[dataframe]
+dask[complete]
 distributed
 numpy>=1.16.5
 pandas
