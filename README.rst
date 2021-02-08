@@ -3,21 +3,21 @@
     :scale: 100%
     :align: left
 
-.. image:: https://travis-ci.org/tmoerman/arboreto.svg?branch=master
+.. image:: https://travis-ci.com/aertslab/arboreto.svg?branch=master
     :alt: Build Status
-    :target: https://travis-ci.org/tmoerman/arboreto
+    :target: https://travis-ci.com/aertslab/arboreto
 
 .. image:: https://readthedocs.org/projects/arboreto/badge/?version=latest
     :alt: Documentation Status
     :target: http://arboreto.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/badge/bioconda-0.1.5-blue.svg
+.. image:: https://anaconda.org/bioconda/arboreto/badges/version.svg
     :alt: Bioconda package
     :target: https://anaconda.org/bioconda/arboreto
 
-.. image:: https://img.shields.io/badge/pypi-0.1.5-blue.svg
+.. image:: https://img.shields.io/pypi/v/arboreto
     :alt: PyPI package
-    :target: https://pypi.python.org/pypi?:action=display&name=arboreto&version=0.1.5
+    :target: https://pypi.org/project/arboreto/
 
 ----
 
