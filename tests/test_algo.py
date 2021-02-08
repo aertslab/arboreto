@@ -41,16 +41,18 @@ class PrepareClientTest(TestCase):
         self.assertEquals(client, passed)
 
         shutdown_callback()
+        passed.close()
         lc.close()
+        lc.status
 
-        self.assertEquals(lc.status, 'closed')
+        self.assertEquals(lc.status.value, 'closed')
 
     def test_address(self):
         with self.assertRaises(Exception) as context:
             address = 'tcp://127.0.0.2:12345'
             _prepare_client(address)
 
-        self.assertIn('Timed out trying to connect to \'tcp://127.0.0.2:12345\'', str(context.exception))
+        self.assertIn('Timed out trying to connect to tcp://127.0.0.2:12345 after 10 s', str(context.exception))
 
     def test_other(self):
         with self.assertRaises(Exception) as context:
@@ -79,7 +81,7 @@ class PrepareInputTest(TestCase):
         self.assertEquals(4, len(t))
 
     def test_numpy_dense_matrix(self):
-        m, g, t = _prepare_input(expression_data=df.as_matrix(),
+        m, g, t = _prepare_input(expression_data=df.to_numpy(),
                                  gene_names=list(df.columns),
                                  tf_names=tfs)
 
@@ -89,7 +91,7 @@ class PrepareInputTest(TestCase):
         self.assertEquals(4, len(t))
 
     def test_scipy_csc_matrix(self):
-        csc = csc_matrix(df.as_matrix())
+        csc = csc_matrix(df.to_numpy())
 
         m, g, t = _prepare_input(expression_data=csc,
                                  gene_names=list(df.columns),
