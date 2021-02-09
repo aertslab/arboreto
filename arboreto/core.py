@@ -311,6 +311,11 @@ def infer_partial_network(regressor_type,
     def fn():
         (clean_tf_matrix, clean_tf_matrix_gene_names) = clean(tf_matrix, tf_matrix_gene_names, target_gene_name)
 
+        # special case in which only a single TF is passed and the target gene
+        # here is the same as the TF (clean_tf_matrix is empty after cleaning):
+        if clean_tf_matrix.size==0:
+            raise ValueError("Cleaned TF matrix is empty, skipping inference of target {}.".format(target_gene_name))
+
         try:
             trained_regressor = fit_model(regressor_type, regressor_kwargs, clean_tf_matrix, target_gene_expression,
                                           early_stop_window_length, seed)
@@ -327,11 +332,11 @@ def infer_partial_network(regressor_type,
         else:
             return links_df
 
-    fallback_result = (None, None) if include_meta else None
+    fallback_result = (_GRN_SCHEMA, _META_SCHEMA) if include_meta else _GRN_SCHEMA
 
     return retry(fn,
                  fallback_result=fallback_result,
-                 warning_msg='infer_data failed for target {0}'.format(target_gene_name))
+                 warning_msg='WARNING: infer_data failed for target {0}'.format(target_gene_name))
 
 
 def target_gene_indices(gene_names,
