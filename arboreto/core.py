@@ -446,8 +446,7 @@ def create_graph(expression_matrix,
                 delayed_link_dfs.append(delayed_link_df)
 
     # gather the DataFrames into one distributed DataFrame
-    all_links_df = from_delayed(delayed_link_dfs, meta=_GRN_SCHEMA)
-    all_meta_df = from_delayed(delayed_meta_dfs, meta=_META_SCHEMA)
+    all_links_df = from_delayed(delayed_link_dfs, meta=_GRN_SCHEMA)        
 
     # optionally limit the number of resulting regulatory links, descending by top importance
     if limit:
@@ -460,6 +459,7 @@ def create_graph(expression_matrix,
     n_parts = len(client.ncores()) * repartition_multiplier
 
     if include_meta:
+        all_meta_df = from_delayed(delayed_meta_dfs, meta=_META_SCHEMA)
         return maybe_limited_links_df.repartition(npartitions=n_parts), \
                all_meta_df.repartition(npartitions=n_parts)
     else:
