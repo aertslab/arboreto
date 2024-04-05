@@ -208,7 +208,7 @@ def to_links_df(regressor_type,
 
         clean_links_df = links_df[links_df.importance > 0].sort_values(by='importance', ascending=False)
 
-        return clean_links_df[['TF', 'target', 'importance']]
+        return clean_links_df[['TF', 'importance', 'target']]
 
     if is_sklearn_regressor(regressor_type):
         return pythonic()
