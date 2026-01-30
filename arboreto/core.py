@@ -9,8 +9,22 @@ import logging
 import scipy
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, ExtraTreesRegressor
 from dask import delayed
-from dask.dataframe import from_delayed
-from dask.dataframe.utils import make_meta
+
+# Compatibility with dask 2024.3+ which removed legacy dataframe implementation
+try:
+    from dask.dataframe import from_delayed
+    from dask.dataframe.utils import make_meta
+except (ImportError, NotImplementedError):
+    # dask-expr (new query planning) compatibility
+    try:
+        from dask_expr import from_delayed
+        from dask_expr._collection import new_collection
+        make_meta = lambda df: df.head(0)
+    except ImportError:
+        raise ImportError(
+            "Could not import dask.dataframe. Please install dask with dataframe support: "
+            "pip install 'dask[dataframe]'"
+        )
 
 logger = logging.getLogger(__name__)
 
